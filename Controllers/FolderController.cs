@@ -1,4 +1,5 @@
 using CyberCloudDriveAPI.Services;
+using CCDriveAPI.DTOs.Folder;
 using Microsoft.AspNetCore.Mvc;
 using CyberCloudDriveAPI.DTOs.Folder;
 using Microsoft.AspNetCore.Authorization;
@@ -17,16 +18,12 @@ namespace CyberCloudDriveAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateFolder([FromBody] dynamic body)
+        public async Task<IActionResult> CreateFolder([FromBody] FolderCreateDto body)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (body == null) return BadRequest(new { error = "Name required" });
-            var nameProp = ((IDictionary<string, object>)body).ContainsKey("name") ? body.name : null;
-            if (nameProp == null) return BadRequest(new { error = "Name required" });
-            string name = nameProp;
-            int? parentId = ((IDictionary<string, object>)body).ContainsKey("parentId") ? (int?)body.parentId : null;
-            var folder = await _folderService.CreateFolderAsync(userId, name, parentId);
+            if (body == null || string.IsNullOrEmpty(body.Name)) return BadRequest(new { error = "Name required" });
+            var folder = await _folderService.CreateFolderAsync(userId, body.Name, body.ParentId);
             return Ok(folder);
         }
 
@@ -49,15 +46,12 @@ namespace CyberCloudDriveAPI.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> RenameFolder(int id, [FromBody] dynamic body)
+        public async Task<IActionResult> RenameFolder(int id, [FromBody] FolderRenameDto body)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (body == null) return BadRequest(new { error = "Name required" });
-            var nameProp = ((IDictionary<string, object>)body).ContainsKey("name") ? body.name : null;
-            if (nameProp == null) return BadRequest(new { error = "Name required" });
-            string name = nameProp;
-            var folder = await _folderService.RenameFolderAsync(userId, id, name);
+            if (body == null || string.IsNullOrEmpty(body.Name)) return BadRequest(new { error = "Name required" });
+            var folder = await _folderService.RenameFolderAsync(userId, id, body.Name);
             return Ok(folder);
         }
     }

@@ -1,4 +1,5 @@
 using CyberCloudDriveAPI.Services;
+using CCDriveAPI.DTOs.Support;
 using Microsoft.AspNetCore.Mvc;
 using CyberCloudDriveAPI.DTOs.Support;
 using Microsoft.AspNetCore.Authorization;
@@ -26,20 +27,13 @@ namespace CyberCloudDriveAPI.Controllers
         }
 
         [HttpPost("contact")]
-        public async Task<IActionResult> Contact([FromBody] dynamic body)
+        public async Task<IActionResult> Contact([FromBody] SupportContactDto body)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (body == null) return BadRequest(new { error = "Subject, message, priority required" });
-            var subjectProp = ((IDictionary<string, object>)body).ContainsKey("subject") ? body.subject : null;
-            var messageProp = ((IDictionary<string, object>)body).ContainsKey("message") ? body.message : null;
-            var priorityProp = ((IDictionary<string, object>)body).ContainsKey("priority") ? body.priority : null;
-            if (subjectProp == null || messageProp == null || priorityProp == null)
-                return BadRequest(new { error = "Subject, message, priority required" });
-            string subject = subjectProp;
-            string message = messageProp;
-            string priority = priorityProp;
-            var result = await _supportService.CreateTicketAsync(userId, subject, message, priority);
+            if (body == null || string.IsNullOrEmpty(body.Subject) || string.IsNullOrEmpty(body.Message) || string.IsNullOrEmpty(body.Priority)) return BadRequest(new { error = "Subject, message, priority required" });
+            // ...existing code...
+            var result = await _supportService.CreateTicketAsync(userId, body.Subject, body.Message, body.Priority);
             return Ok(new { success = result });
         }
 

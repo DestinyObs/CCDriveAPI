@@ -1,5 +1,6 @@
 
 using CyberCloudDriveAPI.Services;
+using CCDriveAPI.DTOs.File;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CyberCloudDriveAPI.Controllers
@@ -54,45 +55,33 @@ namespace CyberCloudDriveAPI.Controllers
         }
 
         [HttpPatch("{id}")]
-        public async Task<IActionResult> RenameFile(int id, [FromBody] dynamic body)
+        public async Task<IActionResult> RenameFile(int id, [FromBody] FileRenameDto body)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (body == null) return BadRequest(new { error = "Name required" });
-            var nameProp = ((IDictionary<string, object>)body).ContainsKey("name") ? body.name : null;
-            if (nameProp == null || string.IsNullOrEmpty(nameProp)) return BadRequest(new { error = "Name required" });
-            string name = nameProp;
-            var file = await _fileService.RenameFileAsync(userId, id, name);
+            if (body == null || string.IsNullOrEmpty(body.Name)) return BadRequest(new { error = "Name required" });
+            var file = await _fileService.RenameFileAsync(userId, id, body.Name);
             return Ok(file);
         }
 
         [HttpPatch("{id}/move")]
-        public async Task<IActionResult> MoveFile(int id, [FromBody] dynamic body)
+        public async Task<IActionResult> MoveFile(int id, [FromBody] FileMoveDto body)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
             if (body == null) return BadRequest(new { error = "FolderId required" });
-            var folderIdProp = ((IDictionary<string, object>)body).ContainsKey("folderId") ? body.folderId : null;
-            if (folderIdProp == null) return BadRequest(new { error = "FolderId required" });
-            int folderId = folderIdProp;
-            var file = await _fileService.MoveFileAsync(userId, id, folderId);
+            var file = await _fileService.MoveFileAsync(userId, id, body.FolderId);
             return Ok(file);
         }
 
         [HttpPost("{id}/share")]
-        public async Task<IActionResult> ShareFile(int id, [FromBody] dynamic body)
+        public async Task<IActionResult> ShareFile(int id, [FromBody] FileShareDto body)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (body == null) return BadRequest(new { error = "Email and permission required" });
-            var emailProp = ((IDictionary<string, object>)body).ContainsKey("email") ? body.email : null;
-            var permissionProp = ((IDictionary<string, object>)body).ContainsKey("permission") ? body.permission : null;
-            if (emailProp == null || permissionProp == null)
-                return BadRequest(new { error = "Email and permission required" });
-            string email = emailProp;
-            string permission = permissionProp;
-            var result = await _fileService.ShareFileAsync(userId, id, email, permission);
-            return Ok(new { success = result });
+            if (body == null || string.IsNullOrEmpty(body.Email) || string.IsNullOrEmpty(body.Permission)) return BadRequest(new { error = "Email and permission required" });
+            var file = await _fileService.ShareFileAsync(userId, id, body.Email, body.Permission);
+            return Ok(file);
         }
 
         [HttpGet("shared")]

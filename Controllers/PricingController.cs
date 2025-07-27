@@ -1,4 +1,5 @@
 using CyberCloudDriveAPI.Services;
+using CCDriveAPI.DTOs.Pricing;
 using Microsoft.AspNetCore.Mvc;
 using CyberCloudDriveAPI.DTOs.Pricing;
 using Microsoft.AspNetCore.Authorization;
@@ -24,15 +25,12 @@ namespace CyberCloudDriveAPI.Controllers
         }
 
         [HttpPost("subscribe")]
-        public async Task<IActionResult> Subscribe([FromBody] dynamic body)
+        public async Task<IActionResult> Subscribe([FromBody] PricingSubscribeDto body)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (body == null) return BadRequest(new { error = "Plan name required" });
-            var planNameProp = ((IDictionary<string, object>)body).ContainsKey("planName") ? body.planName : null;
-            if (planNameProp == null) return BadRequest(new { error = "Plan name required" });
-            string planName = planNameProp;
-            var (success, redirectUrl) = await _pricingService.SubscribeAsync(userId, planName);
+            if (body == null) return BadRequest(new { error = "PlanId and PaymentMethod required" });
+            var (success, redirectUrl) = await _pricingService.SubscribeAsync(userId, body.PlanId.ToString());
             return Ok(new { success, redirectUrl });
         }
 
