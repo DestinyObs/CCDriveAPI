@@ -23,9 +23,9 @@ namespace CyberCloudDriveAPI.Data
             // Seed Users
             if (!context.Users.Any())
             {
-                var admin = new User { UserName = "admin@cybercloud.com", Email = "admin@cybercloud.com", Name = "Admin", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active" };
-                var user1 = new User { UserName = "user1@cybercloud.com", Email = "user1@cybercloud.com", Name = "User One", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active" };
-                var user2 = new User { UserName = "user2@cybercloud.com", Email = "user2@cybercloud.com", Name = "User Two", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active" };
+                var admin = new User { UserName = "admin@cybercloud.com", Email = "admin@cybercloud.com", Name = "Admin", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active", IsVerified = true };
+                var user1 = new User { UserName = "user1@cybercloud.com", Email = "user1@cybercloud.com", Name = "User One", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active", IsVerified = true };
+                var user2 = new User { UserName = "user2@cybercloud.com", Email = "user2@cybercloud.com", Name = "User Two", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active", IsVerified = true };
                 await userManager.CreateAsync(admin, "Admin123!");
                 await userManager.CreateAsync(user1, "User123!");
                 await userManager.CreateAsync(user2, "User123!");
@@ -67,12 +67,41 @@ namespace CyberCloudDriveAPI.Data
                 await context.SaveChangesAsync();
             }
 
+            // Seed Files FIRST
+            if (!context.Files.Any())
+            {
+                context.Files.AddRange(
+                    new CyberCloudDriveAPI.Models.File { UserId = users[0].Id, Name = "file1.txt", Size = 1234, IsTrashed = false, Version = 2, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, S3Key = "file1.txt" },
+                    new CyberCloudDriveAPI.Models.File { UserId = users[1].Id, Name = "file2.jpg", Size = 5678, IsTrashed = false, Version = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, S3Key = "file2.jpg" }
+                );
+                await context.SaveChangesAsync();
+            }
+
+            var files = context.Files.ToList();
+
+            // Seed FileVersions
+            if (!context.FileVersions.Any() && files.Count > 0)
+            {
+                context.FileVersions.AddRange(
+                    new FileVersion { FileId = files[0].Id, S3Key = "file1-v1", Version = 1, CreatedAt = DateTime.UtcNow },
+                    new FileVersion { FileId = files[0].Id, S3Key = "file1-v2", Version = 2, CreatedAt = DateTime.UtcNow }
+                );
+                await context.SaveChangesAsync();
+            }
+
+            // Seed SharedFiles
+            if (!context.SharedFiles.Any() && files.Count > 0)
+            {
+                context.SharedFiles.Add(new SharedFile { FileId = files[0].Id, SharedWithUserId = users[1].Id, Permission = "read", CreatedAt = DateTime.UtcNow });
+                await context.SaveChangesAsync();
+            }
+
             // Seed Activities
             if (!context.Activities.Any())
             {
                 context.Activities.AddRange(
                     new Activity { UserId = users[0].Id, Action = "login", Details = "User logged in", CreatedAt = DateTime.UtcNow },
-                    new Activity { UserId = users[1].Id, Action = "upload", FileId = 1, Details = "Uploaded file", CreatedAt = DateTime.UtcNow }
+                    new Activity { UserId = users[1].Id, Action = "upload", FileId = files.Count > 0 ? files[0].Id : (int?)null, Details = "Uploaded file", CreatedAt = DateTime.UtcNow }
                 );
                 await context.SaveChangesAsync();
             }
@@ -83,33 +112,6 @@ namespace CyberCloudDriveAPI.Data
                 context.OTPs.AddRange(
                     new OTP { UserId = users[0].Id, Otp = "123456", ExpiresAt = DateTime.UtcNow.AddMinutes(10), Used = false },
                     new OTP { UserId = users[1].Id, Otp = "654321", ExpiresAt = DateTime.UtcNow.AddMinutes(10), Used = false }
-                );
-                await context.SaveChangesAsync();
-            }
-
-            // Seed FileVersions
-            if (!context.FileVersions.Any())
-            {
-                context.FileVersions.AddRange(
-                    new FileVersion { FileId = 1, S3Key = "file1-v1", Version = 1, CreatedAt = DateTime.UtcNow },
-                    new FileVersion { FileId = 1, S3Key = "file1-v2", Version = 2, CreatedAt = DateTime.UtcNow }
-                );
-                await context.SaveChangesAsync();
-            }
-
-            // Seed SharedFiles
-            if (!context.SharedFiles.Any())
-            {
-                context.SharedFiles.Add(new SharedFile { FileId = 1, SharedWithUserId = users[1].Id, Permission = "read", CreatedAt = DateTime.UtcNow });
-                await context.SaveChangesAsync();
-            }
-
-            // Seed Files
-            if (!context.Files.Any())
-            {
-                context.Files.AddRange(
-                    new CyberCloudDriveAPI.Models.File { UserId = users[0].Id, Name = "file1.txt", Size = 1234, IsTrashed = false, Version = 2, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, S3Key = "file1.txt" },
-                    new CyberCloudDriveAPI.Models.File { UserId = users[1].Id, Name = "file2.jpg", Size = 5678, IsTrashed = false, Version = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, S3Key = "file2.jpg" }
                 );
                 await context.SaveChangesAsync();
             }

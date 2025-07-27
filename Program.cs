@@ -7,7 +7,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:3000", "https://your-frontend-domain.com")
+        policy.WithOrigins("http://localhost:3000", "http://localhost:8080", "https://your-frontend-domain.com")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
@@ -31,7 +31,8 @@ builder.Services.AddIdentity<CyberCloudDriveAPI.Models.User, Microsoft.AspNetCor
     .AddEntityFrameworkStores<CyberCloudDriveAPI.Data.AppDbContext>();
 
 var app = builder.Build();
-// Seed initial data
+
+// Seed initial data (single scope, async)
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<CyberCloudDriveAPI.Data.AppDbContext>();
