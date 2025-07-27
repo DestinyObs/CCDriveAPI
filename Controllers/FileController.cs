@@ -2,6 +2,7 @@
 using CyberCloudDriveAPI.Services;
 using CCDriveAPI.DTOs.File;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace CyberCloudDriveAPI.Controllers
 {
@@ -25,13 +26,15 @@ namespace CyberCloudDriveAPI.Controllers
         }
 
         [HttpPost("upload")]
-        public async Task<IActionResult> UploadFile([FromForm] IFormFile file, [FromForm] int? folderId)
+        [SwaggerOperation(Summary = "Upload a file", Description = "Uploads a file to the server.")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadFile([FromForm] CyberCloudDriveAPI.DTOs.File.FileUploadDto dto)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (file == null || file.Length == 0) return BadRequest(new { error = "No file uploaded" });
-            if (file.Length > 5_000_000_000) return BadRequest(new { error = "File too large (max 5GB)" });
-            var result = await _fileService.UploadFileAsync(userId, file, folderId);
+            if (dto.File == null || dto.File.Length == 0) return BadRequest(new { error = "No file uploaded" });
+            if (dto.File.Length > 5_000_000_000) return BadRequest(new { error = "File too large (max 5GB)" });
+            var result = await _fileService.UploadFileAsync(userId, dto.File, dto.FolderId);
             return Ok(result);
         }
 
@@ -130,12 +133,14 @@ namespace CyberCloudDriveAPI.Controllers
         }
 
         [HttpPost("{id}/versions")]
-        public async Task<IActionResult> UploadFileVersion(int id, [FromForm] IFormFile file)
+        [SwaggerOperation(Summary = "Upload a file version", Description = "Uploads a new version for a file.")]
+        [Consumes("multipart/form-data")]
+        public async Task<IActionResult> UploadFileVersion(int id, [FromForm] CyberCloudDriveAPI.DTOs.File.FileVersionUploadDto dto)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (file == null || file.Length == 0) return BadRequest(new { error = "No file uploaded" });
-            var result = await _fileService.UploadFileVersionAsync(userId, id, file);
+            if (dto.File == null || dto.File.Length == 0) return BadRequest(new { error = "No file uploaded" });
+            var result = await _fileService.UploadFileVersionAsync(userId, id, dto.File);
             return Ok(result);
         }
 

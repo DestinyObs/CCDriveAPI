@@ -73,14 +73,14 @@ namespace CyberCloudDriveAPI.Controllers
             return Ok(usage);
         }
 
-        [HttpGet("activity")]
-        public async Task<IActionResult> GetActivity([FromQuery] string? period)
-        {
-            var userId = User.FindFirst("sub")?.Value;
-            if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            var activity = await _userService.GetActivityAsync(userId, period);
-            return Ok(activity);
-        }
+        // [HttpGet("activity")]
+        // public async Task<IActionResult> GetActivity([FromQuery] string? period)
+        // {
+        //     var userId = User.FindFirst("sub")?.Value;
+        //     if (string.IsNullOrEmpty(userId)) return Unauthorized();
+        //     var activity = await _userService.GetActivityAsync(userId, period);
+        //     return Ok(activity);
+        // }
 
         [HttpPatch("preferences")]
         public async Task<IActionResult> UpdatePreferences([FromBody] PreferencesDto dto)

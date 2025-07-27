@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +20,13 @@ builder.Services.AddDbContext<CyberCloudDriveAPI.Data.AppDbContext>(options =>
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.EnableAnnotations();
+    c.SupportNonNullableReferenceTypes();
+    c.SwaggerDoc("v1", new() { Title = "CyberCloudDriveAPI", Version = "v1" });
+    c.OperationFilter<CyberCloudDriveAPI.Swagger.AddFileUploadParamTypesOperationFilter>();
+});
 builder.Services.AddScoped<CyberCloudDriveAPI.Services.IAuthService, CyberCloudDriveAPI.Services.AuthService>();
 builder.Services.AddScoped<CyberCloudDriveAPI.Services.IUserService, CyberCloudDriveAPI.Services.UserService>();
 builder.Services.AddScoped<CyberCloudDriveAPI.Services.IFolderService, CyberCloudDriveAPI.Services.FolderService>();
@@ -31,6 +38,7 @@ builder.Services.AddIdentity<CyberCloudDriveAPI.Models.User, Microsoft.AspNetCor
     .AddEntityFrameworkStores<CyberCloudDriveAPI.Data.AppDbContext>();
 
 var app = builder.Build();
+
 
 // Seed initial data (single scope, async)
 using (var scope = app.Services.CreateScope())
