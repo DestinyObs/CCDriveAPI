@@ -2,6 +2,6 @@ namespace CCDriveAPI.DTOs.File
 {
     public class FileRenameDto
     {
-        public string Name { get; set; }
+        public required string Name { get; set; }
     }
 }
