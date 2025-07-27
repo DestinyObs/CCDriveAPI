@@ -14,5 +14,6 @@ namespace CyberCloudDriveAPI.Models
         public User User { get; set; } = null!;
         public ICollection<File> Files { get; set; } = new List<File>();
         public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }
