@@ -6,7 +6,7 @@ using CyberCloudDriveAPI.Services;
 namespace CyberCloudDriveAPI.Controllers
 {
     [ApiController]
-    [Route("user")]
+    [Route("api/user")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -65,9 +65,75 @@ namespace CyberCloudDriveAPI.Controllers
         }
 
         [HttpGet("usage")]
-        public IActionResult GetUsage() => Ok();
+        public async Task<IActionResult> GetUsage()
+        {
+            var userId = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var usage = await _userService.GetStorageUsageAsync(userId);
+            return Ok(usage);
+        }
 
         [HttpGet("activity")]
-        public IActionResult GetActivity() => Ok();
+        public async Task<IActionResult> GetActivity([FromQuery] string? period)
+        {
+            var userId = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var activity = await _userService.GetActivityAsync(userId, period);
+            return Ok(activity);
+        }
+
+        [HttpPatch("preferences")]
+        public async Task<IActionResult> UpdatePreferences([FromBody] PreferencesDto dto)
+        {
+            var userId = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var result = await _userService.UpdatePreferencesAsync(userId, dto);
+            return Ok(new { success = result });
+        }
+
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportUserData()
+        {
+            var userId = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var export = await _userService.ExportUserDataAsync(userId);
+            return Ok(export);
+        }
+
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountDto dto)
+        {
+            var userId = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var result = await _userService.DeleteAccountAsync(userId, dto);
+            return Ok(new { success = result });
+        }
+
+        [HttpPatch("upgrade")]
+        public async Task<IActionResult> UpgradePlan([FromBody] UpgradeDto dto)
+        {
+            var userId = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var result = await _userService.UpgradePlanAsync(userId, dto);
+            return Ok(new { success = result });
+        }
+
+        [HttpPatch("2fa")]
+        public async Task<IActionResult> Toggle2FA([FromBody] PrivacyDto dto)
+        {
+            var userId = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var result = await _userService.Toggle2FAAsync(userId, dto);
+            return Ok(new { success = result });
+        }
+
+        [HttpPatch("privacy")]
+        public async Task<IActionResult> UpdatePrivacy([FromBody] PrivacyDto dto)
+        {
+            var userId = User.FindFirst("sub")?.Value;
+            if (string.IsNullOrEmpty(userId)) return Unauthorized();
+            var result = await _userService.UpdatePrivacyAsync(userId, dto);
+            return Ok(new { success = result });
+        }
     }
 }
