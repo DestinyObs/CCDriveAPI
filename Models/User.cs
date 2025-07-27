@@ -3,12 +3,10 @@ using System.Collections.Generic;
 
 namespace CyberCloudDriveAPI.Models
 {
-    public class User
+    using Microsoft.AspNetCore.Identity;
+    public class User : IdentityUser
     {
-        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string PasswordHash { get; set; } = string.Empty;
         public bool IsVerified { get; set; }
         public DateTime CreatedAt { get; set; }
         public int? PlanId { get; set; }

@@ -10,5 +10,6 @@ namespace CyberCloudDriveAPI.Models
         public string S3Key { get; set; } = string.Empty;
         public int Version { get; set; }
         public DateTime CreatedAt { get; set; }
+        public string? CephKey { get; set; }
     }
 }

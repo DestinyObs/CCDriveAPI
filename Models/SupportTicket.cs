@@ -5,7 +5,7 @@ namespace CyberCloudDriveAPI.Models
     public class SupportTicket
     {
         public int Id { get; set; }
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public User User { get; set; } = null!;
         public string Subject { get; set; } = string.Empty;
         public string Message { get; set; } = string.Empty;

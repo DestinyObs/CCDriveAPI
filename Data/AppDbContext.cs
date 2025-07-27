@@ -3,12 +3,14 @@ using CyberCloudDriveAPI.Models;
 
 namespace CyberCloudDriveAPI.Data
 {
-    public class AppDbContext : DbContext
+    using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+
+    public class AppDbContext : IdentityDbContext<User>
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public AppDbContext() { }
 
-        public DbSet<User> Users => Set<User>();
-        public DbSet<File> Files => Set<File>();
+        public DbSet<CyberCloudDriveAPI.Models.File> Files => Set<CyberCloudDriveAPI.Models.File>();
         public DbSet<Folder> Folders => Set<Folder>();
         public DbSet<FileVersion> FileVersions => Set<FileVersion>();
         public DbSet<SharedFile> SharedFiles => Set<SharedFile>();
@@ -18,8 +20,11 @@ namespace CyberCloudDriveAPI.Data
         public DbSet<OTP> OTPs => Set<OTP>();
         public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
 
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             // Folder self-referencing
             modelBuilder.Entity<Folder>()
                 .HasOne(f => f.Parent)
@@ -28,19 +33,8 @@ namespace CyberCloudDriveAPI.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             // User-File relationship
-            modelBuilder.Entity<File>()
-                .HasOne(f => f.User)
-                .WithMany(u => u.Files)
-                .HasForeignKey(f => f.UserId);
-
-            // User-Folder relationship
-            modelBuilder.Entity<Folder>()
-                .HasOne(f => f.User)
-                .WithMany(u => u.Folders)
-                .HasForeignKey(f => f.UserId);
-
             // File-Folder relationship
-            modelBuilder.Entity<File>()
+            modelBuilder.Entity<CyberCloudDriveAPI.Models.File>()
                 .HasOne(f => f.Folder)
                 .WithMany(fol => fol.Files)
                 .HasForeignKey(f => f.FolderId);
@@ -50,6 +44,13 @@ namespace CyberCloudDriveAPI.Data
                 .HasOne(fv => fv.File)
                 .WithMany(f => f.Versions)
                 .HasForeignKey(fv => fv.FileId);
+
+            // SharedFile relationships
+            modelBuilder.Entity<SharedFile>()
+                .HasOne(sf => sf.File)
+                .WithMany(f => f.SharedFiles)
+                .HasForeignKey(sf => sf.FileId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // SharedFile relationships
             modelBuilder.Entity<SharedFile>()
@@ -82,10 +83,6 @@ namespace CyberCloudDriveAPI.Data
                 .HasForeignKey(s => s.PlanId);
 
             // User-Plan relationship
-            modelBuilder.Entity<User>()
-                .HasOne(u => u.Plan)
-                .WithMany()
-                .HasForeignKey(u => u.PlanId);
 
             // OTP relationships
             modelBuilder.Entity<OTP>()

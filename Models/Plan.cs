@@ -11,5 +11,6 @@ namespace CyberCloudDriveAPI.Models
         public long StorageLimit { get; set; }
         public string Features { get; set; } = string.Empty;
         public ICollection<Subscription> Subscriptions { get; set; } = new List<Subscription>();
+        public ICollection<User> Users { get; set; } = new List<User>();
     }
 }

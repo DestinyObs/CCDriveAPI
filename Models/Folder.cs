@@ -10,7 +10,7 @@ namespace CyberCloudDriveAPI.Models
         public int? ParentId { get; set; }
         public Folder? Parent { get; set; }
         public ICollection<Folder> Children { get; set; } = new List<Folder>();
-        public int UserId { get; set; }
+        public string UserId { get; set; } = string.Empty;
         public User User { get; set; } = null!;
         public ICollection<File> Files { get; set; } = new List<File>();
         public DateTime CreatedAt { get; set; }
