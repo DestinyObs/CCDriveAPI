@@ -10,6 +10,13 @@ namespace CyberCloudDriveAPI.Services
 {
     public interface IFileService
     {
+        Task<bool> PermanentDeleteFileAsync(string userId, int fileId);
+        Task<FileVersionDto> UploadFileVersionAsync(string userId, int fileId, IFormFile file);
+        Task<FileDto> RestoreFileVersionAsync(string userId, int fileId, int versionId);
+        Task<bool> DeleteFileVersionAsync(string userId, int fileId, int versionId);
+        Task<object> PreviewFileAsync(string userId, int fileId);
+        Task<FileDto> CopyFileAsync(string userId, int fileId);
+        Task<bool> FavoriteFileAsync(string userId, int fileId);
         Task<IEnumerable<FileDto>> ListFilesAsync(string userId, int? folderId);
         Task<FileDto> UploadFileAsync(string userId, IFormFile file, int? folderId);
         Task<FileDownloadDto> DownloadFileAsync(string userId, int fileId);
@@ -49,14 +56,14 @@ namespace CyberCloudDriveAPI.Services
             });
         }
 
-        public async Task<FileDto> UploadFileAsync(string userId, IFormFile file, int? folderId)
+        public Task<FileDto> UploadFileAsync(string userId, IFormFile file, int? folderId)
         {
-            return new FileDto { Id = 1, Name = file.FileName, Size = file.Length };
+            return Task.FromResult(new FileDto { Id = 1, Name = file.FileName, Size = file.Length });
         }
 
-        public async Task<FileDownloadDto> DownloadFileAsync(string userId, int fileId)
+        public Task<FileDownloadDto> DownloadFileAsync(string userId, int fileId)
         {
-            return new FileDownloadDto { Id = fileId, Name = "file.txt", DownloadUrl = "https://example.com/file.txt", Size = 1234 };
+            return Task.FromResult(new FileDownloadDto { Id = fileId, Name = "file.txt", DownloadUrl = "https://example.com/file.txt", Size = 1234 });
         }
 
         public async Task<bool> DeleteFileAsync(string userId, int fileId)
@@ -186,39 +193,39 @@ namespace CyberCloudDriveAPI.Services
             };
         }
 
-        public async Task<IEnumerable<FileVersionDto>> GetFileVersionsAsync(string userId, int fileId)
+        public Task<IEnumerable<FileVersionDto>> GetFileVersionsAsync(string userId, int fileId)
         {
-            return new List<FileVersionDto>();
+            return Task.FromResult<IEnumerable<FileVersionDto>>(new List<FileVersionDto>());
         }
 
-        public async Task<bool> PermanentDeleteFileAsync(string userId, int fileId)
+        public Task<bool> PermanentDeleteFileAsync(string userId, int fileId)
         {
-            return true;
+            return Task.FromResult(true);
         }
 
-        public async Task<FileVersionDto> UploadFileVersionAsync(string userId, int fileId, IFormFile file)
+        public Task<FileVersionDto> UploadFileVersionAsync(string userId, int fileId, IFormFile file)
         {
-            return new FileVersionDto { Id = 1, FileId = fileId, Version = 2, S3Key = "v2/file.txt" };
+            return Task.FromResult(new FileVersionDto { Id = 1, FileId = fileId, Version = 2, S3Key = "v2/file.txt" });
         }
 
-        public async Task<FileDto> RestoreFileVersionAsync(string userId, int fileId, int versionId)
+        public Task<FileDto> RestoreFileVersionAsync(string userId, int fileId, int versionId)
         {
-            return new FileDto { Id = fileId };
+            return Task.FromResult(new FileDto { Id = fileId });
         }
 
-        public async Task<bool> DeleteFileVersionAsync(string userId, int fileId, int versionId)
+        public Task<bool> DeleteFileVersionAsync(string userId, int fileId, int versionId)
         {
-            return true;
+            return Task.FromResult(true);
         }
 
-        public async Task<object> PreviewFileAsync(string userId, int fileId)
+        public Task<object> PreviewFileAsync(string userId, int fileId)
         {
-            return new { url = "https://example.com/preview.png" };
+            return Task.FromResult<object>(new { url = "https://example.com/preview.png" });
         }
 
-        public async Task<FileDto> CopyFileAsync(string userId, int fileId)
+        public Task<FileDto> CopyFileAsync(string userId, int fileId)
         {
-            return new FileDto { Id = fileId + 1, Name = "Copy of file" };
+            return Task.FromResult(new FileDto { Id = fileId + 1, Name = "Copy of file" });
         }
 
         public async Task<bool> FavoriteFileAsync(string userId, int fileId)
