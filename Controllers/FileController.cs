@@ -58,9 +58,10 @@ namespace CyberCloudDriveAPI.Controllers
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (body == null || body.name == null) return BadRequest(new { error = "Name required" });
-            string name = body.name;
-            if (string.IsNullOrEmpty(name)) return BadRequest(new { error = "Name required" });
+            if (body == null) return BadRequest(new { error = "Name required" });
+            var nameProp = ((IDictionary<string, object>)body).ContainsKey("name") ? body.name : null;
+            if (nameProp == null || string.IsNullOrEmpty(nameProp)) return BadRequest(new { error = "Name required" });
+            string name = nameProp;
             var file = await _fileService.RenameFileAsync(userId, id, name);
             return Ok(file);
         }
@@ -70,8 +71,10 @@ namespace CyberCloudDriveAPI.Controllers
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (body == null || body.folderId == null) return BadRequest(new { error = "FolderId required" });
-            int folderId = body.folderId;
+            if (body == null) return BadRequest(new { error = "FolderId required" });
+            var folderIdProp = ((IDictionary<string, object>)body).ContainsKey("folderId") ? body.folderId : null;
+            if (folderIdProp == null) return BadRequest(new { error = "FolderId required" });
+            int folderId = folderIdProp;
             var file = await _fileService.MoveFileAsync(userId, id, folderId);
             return Ok(file);
         }
@@ -81,10 +84,13 @@ namespace CyberCloudDriveAPI.Controllers
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-            if (body == null || body.email == null || body.permission == null)
+            if (body == null) return BadRequest(new { error = "Email and permission required" });
+            var emailProp = ((IDictionary<string, object>)body).ContainsKey("email") ? body.email : null;
+            var permissionProp = ((IDictionary<string, object>)body).ContainsKey("permission") ? body.permission : null;
+            if (emailProp == null || permissionProp == null)
                 return BadRequest(new { error = "Email and permission required" });
-            string email = body.email;
-            string permission = body.permission;
+            string email = emailProp;
+            string permission = permissionProp;
             var result = await _fileService.ShareFileAsync(userId, id, email, permission);
             return Ok(new { success = result });
         }
