@@ -13,6 +13,9 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<CyberCloudDriveAPI.Services.IAuthService, CyberCloudDriveAPI.Services.AuthService>();
 builder.Services.AddScoped<CyberCloudDriveAPI.Services.IUserService, CyberCloudDriveAPI.Services.UserService>();
 builder.Services.AddScoped<CyberCloudDriveAPI.Services.IFolderService, CyberCloudDriveAPI.Services.FolderService>();
+builder.Services.AddScoped<CyberCloudDriveAPI.Services.IPricingService, CyberCloudDriveAPI.Services.PricingService>();
+builder.Services.AddScoped<CyberCloudDriveAPI.Services.IActivityService, CyberCloudDriveAPI.Services.ActivityService>();
+builder.Services.AddScoped<CyberCloudDriveAPI.Services.ISupportService, CyberCloudDriveAPI.Services.SupportService>();
 builder.Services.AddScoped<CyberCloudDriveAPI.Services.IFileService, CyberCloudDriveAPI.Services.FileService>();
 builder.Services.AddIdentity<CyberCloudDriveAPI.Models.User, Microsoft.AspNetCore.Identity.IdentityRole>()
     .AddEntityFrameworkStores<CyberCloudDriveAPI.Data.AppDbContext>();
