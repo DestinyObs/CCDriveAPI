@@ -141,7 +141,17 @@ namespace CyberCloudDriveAPI.Services
                 new Claim(JwtRegisteredClaimNames.Email, user.Email ?? ""),
                 new Claim("name", user.Name)
             };
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:Secret"] ?? "supersecret"));
+            var secret = _config["JWT:Secret"] ?? "supersecret";
+            byte[] keyBytes;
+            try
+            {
+                keyBytes = Convert.FromBase64String(secret);
+            }
+            catch
+            {
+                keyBytes = Encoding.UTF8.GetBytes(secret);
+            }
+            var key = new SymmetricSecurityKey(keyBytes);
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
                 claims: claims,
