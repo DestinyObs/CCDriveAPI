@@ -12,5 +12,6 @@ namespace CyberCloudDriveAPI.Services
         Task<bool> ResetPasswordAsync(ResetPasswordDto dto);
         Task<bool> LogoutAsync(string userId);
         Task<AuthResponseDto> RefreshAsync(RefreshDto dto);
+        Task<bool> ResendOtpAsync(string email);
     }
 }

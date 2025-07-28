@@ -14,6 +14,24 @@ namespace CyberCloudDriveAPI.Controllers
             _authService = authService;
         }
 
+        [HttpPost("resend-otp")]
+        public async Task<IActionResult> ResendOtp([FromBody] DTOs.Auth.OtpDto dto)
+        {
+            if (dto == null || string.IsNullOrEmpty(dto.Email))
+                return BadRequest(new { code = "VALIDATION_ERROR", error = "Email is required." });
+            try
+            {
+                var result = await _authService.ResendOtpAsync(dto.Email);
+                if (!result)
+                    return NotFound(new { code = "USER_NOT_FOUND", error = "User not found." });
+                return Ok(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { code = "RESEND_OTP_ERROR", error = ex.Message });
+            }
+        }
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto dto)
         {

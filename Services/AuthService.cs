@@ -30,9 +30,27 @@ namespace CyberCloudDriveAPI.Services
             var result = await _userManager.CreateAsync(user, dto.Password);
             if (!result.Succeeded)
                 throw new Exception(string.Join(", ", result.Errors.Select(e => e.Description)));
-            // Generate OTP and store in DB
+            await GenerateAndSendOtp(user);
+            return await GenerateAuthResponse(user);
+        }
+
+        public async Task<bool> ResendOtpAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return false;
+            await GenerateAndSendOtp(user);
+            return true;
+        }
+
+        private async Task GenerateAndSendOtp(User user)
+        {
+            // Remove any existing, unexpired OTPs for this user
+            var now = DateTime.UtcNow;
+            var existingOtps = _db.OTPs.Where(o => o.UserId == user.Id && !o.Used && o.ExpiresAt > now);
+            _db.OTPs.RemoveRange(existingOtps);
+            // Generate new OTP
             var otp = new Random().Next(100000, 999999).ToString();
-            var otpEntity = new OTP { UserId = user.Id, Otp = otp, ExpiresAt = DateTime.UtcNow.AddMinutes(10), Used = false };
+            var otpEntity = new OTP { UserId = user.Id, Otp = otp, ExpiresAt = now.AddMinutes(30), Used = false };
             _db.OTPs.Add(otpEntity);
             await _db.SaveChangesAsync();
             // Send OTP via email using MailKit
@@ -52,7 +70,6 @@ namespace CyberCloudDriveAPI.Services
                 await client.SendAsync(message);
                 await client.DisconnectAsync(true);
             }
-            return await GenerateAuthResponse(user);
         }
 
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
