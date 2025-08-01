@@ -1,8 +1,33 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Filters;
 
+
 var builder = WebApplication.CreateBuilder(args);
+// JWT Authentication
+var jwtSettings = builder.Configuration.GetSection("JWT");
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var secret = jwtSettings["Secret"] ?? "supersecret";
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret))
+    };
+});
 
 // Add CORS policy for frontend
 builder.Services.AddCors(options =>
@@ -26,6 +51,28 @@ builder.Services.AddSwaggerGen(c =>
     c.SupportNonNullableReferenceTypes();
     c.SwaggerDoc("v1", new() { Title = "CyberCloudDriveAPI", Version = "v1" });
     c.OperationFilter<CyberCloudDriveAPI.Swagger.AddFileUploadParamTypesOperationFilter>();
+
+    // Add JWT Bearer support to Swagger
+    c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Example: 'Bearer {token}'",
+        Name = "Authorization",
+        In = Microsoft.OpenApi.Models.ParameterLocation.Header,
+        Type = Microsoft.OpenApi.Models.SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+    c.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement {
+        {
+            new Microsoft.OpenApi.Models.OpenApiSecurityScheme {
+                Reference = new Microsoft.OpenApi.Models.OpenApiReference {
+                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
 });
 builder.Services.AddScoped<CyberCloudDriveAPI.Services.IAuthService, CyberCloudDriveAPI.Services.AuthService>();
 builder.Services.AddScoped<CyberCloudDriveAPI.Services.IUserService, CyberCloudDriveAPI.Services.UserService>();
@@ -56,9 +103,11 @@ if (app.Environment.IsDevelopment())
 }
 
 
+
 app.UseHttpsRedirection();
 app.UseRouting();
 app.UseCors("AllowFrontend");
+app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
