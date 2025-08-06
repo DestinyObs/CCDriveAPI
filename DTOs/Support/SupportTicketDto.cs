@@ -1,4 +1,4 @@
-namespace CyberCloudDriveAPI.DTOs.Support
+namespace TheDriveAPI.DTOs.Support
 {
     public class SupportTicketDto
     {

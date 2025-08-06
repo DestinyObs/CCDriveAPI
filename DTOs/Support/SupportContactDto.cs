@@ -1,4 +1,4 @@
-namespace CCDriveAPI.DTOs.Support
+namespace TheDriveAPI.DTOs.Support
 {
     public class SupportContactDto
     {

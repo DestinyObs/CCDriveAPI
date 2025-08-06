@@ -33,13 +33,13 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
-        policy.WithOrigins("http://localhost:8080", "https://ccdrive.netlify.app")
+        policy.WithOrigins("http://localhost:8080", "https://thedrive.netlify.app")
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials());
 });
 // Register AppDbContext with SQL Server
-builder.Services.AddDbContext<CyberCloudDriveAPI.Data.AppDbContext>(options =>
+builder.Services.AddDbContext<TheDriveAPI.Data.AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add services to the container.
@@ -49,8 +49,8 @@ builder.Services.AddSwaggerGen(c =>
 {
     c.EnableAnnotations();
     c.SupportNonNullableReferenceTypes();
-    c.SwaggerDoc("v1", new() { Title = "CyberCloudDriveAPI", Version = "v1" });
-    c.OperationFilter<CyberCloudDriveAPI.Swagger.AddFileUploadParamTypesOperationFilter>();
+    c.SwaggerDoc("v1", new() { Title = "TheDriveAPI", Version = "v1" });
+    c.OperationFilter<TheDriveAPI.Swagger.AddFileUploadParamTypesOperationFilter>();
 
     // Add JWT Bearer support to Swagger
     c.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
@@ -74,15 +74,15 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-builder.Services.AddScoped<CyberCloudDriveAPI.Services.IAuthService, CyberCloudDriveAPI.Services.AuthService>();
-builder.Services.AddScoped<CyberCloudDriveAPI.Services.IUserService, CyberCloudDriveAPI.Services.UserService>();
-builder.Services.AddScoped<CyberCloudDriveAPI.Services.IFolderService, CyberCloudDriveAPI.Services.FolderService>();
-builder.Services.AddScoped<CyberCloudDriveAPI.Services.IPricingService, CyberCloudDriveAPI.Services.PricingService>();
-builder.Services.AddScoped<CyberCloudDriveAPI.Services.IActivityService, CyberCloudDriveAPI.Services.ActivityService>();
-builder.Services.AddScoped<CyberCloudDriveAPI.Services.ISupportService, CyberCloudDriveAPI.Services.SupportService>();
-builder.Services.AddScoped<CyberCloudDriveAPI.Services.IFileService, CyberCloudDriveAPI.Services.FileService>();
-builder.Services.AddIdentity<CyberCloudDriveAPI.Models.User, Microsoft.AspNetCore.Identity.IdentityRole>()
-    .AddEntityFrameworkStores<CyberCloudDriveAPI.Data.AppDbContext>();
+builder.Services.AddScoped<TheDriveAPI.Services.IAuthService, TheDriveAPI.Services.AuthService>();
+builder.Services.AddScoped<TheDriveAPI.Services.IUserService, TheDriveAPI.Services.UserService>();
+builder.Services.AddScoped<TheDriveAPI.Services.IFolderService, TheDriveAPI.Services.FolderService>();
+builder.Services.AddScoped<TheDriveAPI.Services.IPricingService, TheDriveAPI.Services.PricingService>();
+builder.Services.AddScoped<TheDriveAPI.Services.IActivityService, TheDriveAPI.Services.ActivityService>();
+builder.Services.AddScoped<TheDriveAPI.Services.ISupportService, TheDriveAPI.Services.SupportService>();
+builder.Services.AddScoped<TheDriveAPI.Services.IFileService, TheDriveAPI.Services.FileService>();
+builder.Services.AddIdentity<TheDriveAPI.Models.User, Microsoft.AspNetCore.Identity.IdentityRole>()
+    .AddEntityFrameworkStores<TheDriveAPI.Data.AppDbContext>();
 
 var app = builder.Build();
 
@@ -90,9 +90,9 @@ var app = builder.Build();
 // Seed initial data (single scope, async)
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetRequiredService<CyberCloudDriveAPI.Data.AppDbContext>();
-    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<CyberCloudDriveAPI.Models.User>>();
-    CyberCloudDriveAPI.Data.SeedData.InitializeAsync(context, userManager).GetAwaiter().GetResult();
+    var context = scope.ServiceProvider.GetRequiredService<TheDriveAPI.Data.AppDbContext>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TheDriveAPI.Models.User>>();
+    TheDriveAPI.Data.SeedData.InitializeAsync(context, userManager).GetAwaiter().GetResult();
 }
 
 // Configure the HTTP request pipeline.

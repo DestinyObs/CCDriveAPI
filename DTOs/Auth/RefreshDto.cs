@@ -1,4 +1,4 @@
-namespace CyberCloudDriveAPI.DTOs.Auth
+namespace TheDriveAPI.DTOs.Auth
 {
     public class RefreshDto
     {

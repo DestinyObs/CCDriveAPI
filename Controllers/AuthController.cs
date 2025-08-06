@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using CyberCloudDriveAPI.DTOs.Auth;
-using CyberCloudDriveAPI.Services;
+using TheDriveAPI.DTOs.Auth;
+using TheDriveAPI.Services;
 
-namespace CyberCloudDriveAPI.Controllers
+namespace TheDriveAPI.Controllers
 {
     [ApiController]
     [Route("api/auth")]

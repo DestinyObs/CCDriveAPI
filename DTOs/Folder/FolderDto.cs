@@ -1,4 +1,4 @@
-namespace CyberCloudDriveAPI.DTOs.Folder
+namespace TheDriveAPI.DTOs.Folder
 {
     public class FolderDto
     {

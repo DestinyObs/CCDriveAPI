@@ -1,10 +1,10 @@
-using CyberCloudDriveAPI.Services;
-using CCDriveAPI.DTOs.Folder;
+using TheDriveAPI.Services;
+using TheDriveAPI.DTOs.Folder;
 using Microsoft.AspNetCore.Mvc;
-using CyberCloudDriveAPI.DTOs.Folder;
+using TheDriveAPI.DTOs.Folder;
 using Microsoft.AspNetCore.Authorization;
 
-namespace CyberCloudDriveAPI.Controllers
+namespace TheDriveAPI.Controllers
 {
     [ApiController]
     [Route("api/folders")]

@@ -1,4 +1,4 @@
-namespace CyberCloudDriveAPI.DTOs.Activity
+namespace TheDriveAPI.DTOs.Activity
 {
     public class ActivityDto
     {

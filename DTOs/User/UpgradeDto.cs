@@ -1,4 +1,4 @@
-namespace CyberCloudDriveAPI.DTOs.User
+namespace TheDriveAPI.DTOs.User
 {
     public class UpgradeDto
     {

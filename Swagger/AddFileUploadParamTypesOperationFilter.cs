@@ -2,7 +2,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Linq;
 
-namespace CyberCloudDriveAPI.Swagger
+namespace TheDriveAPI.Swagger
 {
     public class AddFileUploadParamTypesOperationFilter : IOperationFilter
     {

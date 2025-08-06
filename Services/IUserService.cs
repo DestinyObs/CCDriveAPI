@@ -1,7 +1,7 @@
-using CyberCloudDriveAPI.DTOs.User;
+using TheDriveAPI.DTOs.User;
 using System.Threading.Tasks;
 
-namespace CyberCloudDriveAPI.Services
+namespace TheDriveAPI.Services
 {
     public interface IUserService
     {

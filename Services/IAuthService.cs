@@ -1,7 +1,7 @@
-using CyberCloudDriveAPI.DTOs.Auth;
+using TheDriveAPI.DTOs.Auth;
 using System.Threading.Tasks;
 
-namespace CyberCloudDriveAPI.Services
+namespace TheDriveAPI.Services
 {
     public interface IAuthService
     {

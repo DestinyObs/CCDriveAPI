@@ -1,10 +1,10 @@
-using CyberCloudDriveAPI.Services;
-using CCDriveAPI.DTOs.Support;
+using TheDriveAPI.Services;
+using TheDriveAPI.DTOs.Support;
 using Microsoft.AspNetCore.Mvc;
-using CyberCloudDriveAPI.DTOs.Support;
+using TheDriveAPI.DTOs.Support;
 using Microsoft.AspNetCore.Authorization;
 
-namespace CyberCloudDriveAPI.Controllers
+namespace TheDriveAPI.Controllers
 {
     [ApiController]
     [Route("api/help")]
@@ -42,7 +42,7 @@ namespace CyberCloudDriveAPI.Controllers
         {
             // TODO: Query FAQ from DB or static file
             var faq = new[] {
-                new { category = "General", questions = new[] { new { q = "What is CyberCloud Drive?", a = "A secure cloud storage platform." } } }
+                new { category = "General", questions = new[] { new { q = "What is TheDrive?", a = "A secure cloud storage platform." } } }
             };
             return Ok(faq);
         }
@@ -51,7 +51,7 @@ namespace CyberCloudDriveAPI.Controllers
         public IActionResult GetResources()
         {
             // TODO: Query resources from DB or static file
-            var resources = new[] { new { resource = "https://docs.cybercloud.com" } };
+            var resources = new[] { new { resource = "https://docs.thedrive.com" } };
             return Ok(resources);
         }
     }

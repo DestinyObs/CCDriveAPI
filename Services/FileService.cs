@@ -1,12 +1,12 @@
-using CyberCloudDriveAPI.Models;
-using CyberCloudDriveAPI.DTOs.File;
+using TheDriveAPI.Models;
+using TheDriveAPI.DTOs.File;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using CyberCloudDriveAPI.Data;
+using TheDriveAPI.Data;
 
-namespace CyberCloudDriveAPI.Services
+namespace TheDriveAPI.Services
 {
     public interface IFileService
     {

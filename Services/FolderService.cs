@@ -1,11 +1,11 @@
-using CyberCloudDriveAPI.Models;
-using CyberCloudDriveAPI.DTOs.Folder;
+using TheDriveAPI.Models;
+using TheDriveAPI.DTOs.Folder;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using CyberCloudDriveAPI.Data;
+using TheDriveAPI.Data;
 
-namespace CyberCloudDriveAPI.Services
+namespace TheDriveAPI.Services
 {
     public interface IFolderService
     {

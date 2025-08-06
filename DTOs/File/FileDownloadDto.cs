@@ -1,4 +1,4 @@
-namespace CyberCloudDriveAPI.DTOs.File
+namespace TheDriveAPI.DTOs.File
 {
     public class FileDownloadDto
     {

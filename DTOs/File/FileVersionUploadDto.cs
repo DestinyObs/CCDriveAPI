@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Http;
 
-namespace CyberCloudDriveAPI.DTOs.File
+namespace TheDriveAPI.DTOs.File
 {
     public class FileVersionUploadDto
     {

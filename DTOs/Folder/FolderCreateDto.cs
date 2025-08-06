@@ -1,4 +1,4 @@
-namespace CCDriveAPI.DTOs.Folder
+namespace TheDriveAPI.DTOs.Folder
 {
     public class FolderCreateDto
     {

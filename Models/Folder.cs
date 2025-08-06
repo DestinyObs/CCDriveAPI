@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CyberCloudDriveAPI.Models
+namespace TheDriveAPI.Models
 {
     public class Folder
     {

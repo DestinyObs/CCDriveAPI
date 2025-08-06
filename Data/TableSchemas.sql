@@ -1,4 +1,4 @@
--- MSSQL Table Schemas for CyberCloud Drive
+-- MSSQL Table Schemas for TheDrive
 CREATE TABLE Plans (
     Id INT IDENTITY PRIMARY KEY,
     Name NVARCHAR(100) NOT NULL,

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore.Design;
 using System.IO;
 
-namespace CyberCloudDriveAPI.Data
+namespace TheDriveAPI.Data
 {
     public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     {

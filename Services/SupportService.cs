@@ -1,11 +1,11 @@
-using CyberCloudDriveAPI.Models;
-using CyberCloudDriveAPI.DTOs.Support;
+using TheDriveAPI.Models;
+using TheDriveAPI.DTOs.Support;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using CyberCloudDriveAPI.Data;
+using TheDriveAPI.Data;
 
-namespace CyberCloudDriveAPI.Services
+namespace TheDriveAPI.Services
 {
     public interface ISupportService
     {

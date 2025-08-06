@@ -1,6 +1,6 @@
 using System;
 
-namespace CyberCloudDriveAPI.Models
+namespace TheDriveAPI.Models
 {
     public class Activity
     {

@@ -1,8 +1,8 @@
-using CyberCloudDriveAPI.Models;
+using TheDriveAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-namespace CyberCloudDriveAPI.Data
+namespace TheDriveAPI.Data
 {
     public static class SeedData
     {
@@ -23,9 +23,9 @@ namespace CyberCloudDriveAPI.Data
             // Seed Users
             if (!context.Users.Any())
             {
-                var admin = new User { UserName = "admin@cybercloud.com", Email = "admin@cybercloud.com", Name = "Admin", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active", IsVerified = true };
-                var user1 = new User { UserName = "user1@cybercloud.com", Email = "user1@cybercloud.com", Name = "User One", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active", IsVerified = true };
-                var user2 = new User { UserName = "user2@cybercloud.com", Email = "user2@cybercloud.com", Name = "User Two", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active", IsVerified = true };
+                var admin = new User { UserName = "admin@thedrive.com", Email = "admin@thedrive.com", Name = "Admin", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active", IsVerified = true };
+                var user1 = new User { UserName = "user1@thedrive.com", Email = "user1@thedrive.com", Name = "User One", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active", IsVerified = true };
+                var user2 = new User { UserName = "user2@thedrive.com", Email = "user2@thedrive.com", Name = "User Two", CreatedAt = DateTime.UtcNow, EmailConfirmed = true, Status = "active", IsVerified = true };
                 await userManager.CreateAsync(admin, "Admin123!");
                 await userManager.CreateAsync(user1, "User123!");
                 await userManager.CreateAsync(user2, "User123!");
@@ -71,8 +71,8 @@ namespace CyberCloudDriveAPI.Data
             if (!context.Files.Any())
             {
                 context.Files.AddRange(
-                    new CyberCloudDriveAPI.Models.File { UserId = users[0].Id, Name = "file1.txt", Size = 1234, IsTrashed = false, Version = 2, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, S3Key = "file1.txt" },
-                    new CyberCloudDriveAPI.Models.File { UserId = users[1].Id, Name = "file2.jpg", Size = 5678, IsTrashed = false, Version = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, S3Key = "file2.jpg" }
+                    new TheDriveAPI.Models.File { UserId = users[0].Id, Name = "file1.txt", Size = 1234, IsTrashed = false, Version = 2, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, S3Key = "file1.txt" },
+                    new TheDriveAPI.Models.File { UserId = users[1].Id, Name = "file2.jpg", Size = 5678, IsTrashed = false, Version = 1, CreatedAt = DateTime.UtcNow, UpdatedAt = DateTime.UtcNow, S3Key = "file2.jpg" }
                 );
                 await context.SaveChangesAsync();
             }

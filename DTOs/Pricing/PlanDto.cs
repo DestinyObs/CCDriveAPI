@@ -1,4 +1,4 @@
-namespace CyberCloudDriveAPI.DTOs.Pricing
+namespace TheDriveAPI.DTOs.Pricing
 {
     public class PlanDto
     {

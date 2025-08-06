@@ -1,10 +1,10 @@
 
-using CyberCloudDriveAPI.Services;
-using CCDriveAPI.DTOs.File;
+using TheDriveAPI.Services;
+using TheDriveAPI.DTOs.File;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace CyberCloudDriveAPI.Controllers
+namespace TheDriveAPI.Controllers
 {
     [ApiController]
     [Route("api/files")]
@@ -28,7 +28,7 @@ namespace CyberCloudDriveAPI.Controllers
         [HttpPost("upload")]
         [SwaggerOperation(Summary = "Upload a file", Description = "Uploads a file to the server.")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadFile([FromForm] CyberCloudDriveAPI.DTOs.File.FileUploadDto dto)
+        public async Task<IActionResult> UploadFile([FromForm] TheDriveAPI.DTOs.File.FileUploadDto dto)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
@@ -135,7 +135,7 @@ namespace CyberCloudDriveAPI.Controllers
         [HttpPost("{id}/versions")]
         [SwaggerOperation(Summary = "Upload a file version", Description = "Uploads a new version for a file.")]
         [Consumes("multipart/form-data")]
-        public async Task<IActionResult> UploadFileVersion(int id, [FromForm] CyberCloudDriveAPI.DTOs.File.FileVersionUploadDto dto)
+        public async Task<IActionResult> UploadFileVersion(int id, [FromForm] TheDriveAPI.DTOs.File.FileVersionUploadDto dto)
         {
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();

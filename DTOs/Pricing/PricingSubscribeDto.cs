@@ -1,4 +1,4 @@
-namespace CCDriveAPI.DTOs.Pricing
+namespace TheDriveAPI.DTOs.Pricing
 {
     public class PricingSubscribeDto
     {

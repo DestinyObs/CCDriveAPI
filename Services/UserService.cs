@@ -1,11 +1,11 @@
-using CyberCloudDriveAPI.DTOs.User;
-using CyberCloudDriveAPI.Models;
+using TheDriveAPI.DTOs.User;
+using TheDriveAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
-using CyberCloudDriveAPI.Data;
+using TheDriveAPI.Data;
 
-namespace CyberCloudDriveAPI.Services
+namespace TheDriveAPI.Services
 {
     public class UserService : IUserService
     {

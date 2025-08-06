@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using CyberCloudDriveAPI.Models;
+using TheDriveAPI.Models;
 
-namespace CyberCloudDriveAPI.Data
+namespace TheDriveAPI.Data
 {
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
@@ -10,7 +10,7 @@ namespace CyberCloudDriveAPI.Data
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
         public AppDbContext() { }
 
-        public DbSet<CyberCloudDriveAPI.Models.File> Files => Set<CyberCloudDriveAPI.Models.File>();
+        public DbSet<TheDriveAPI.Models.File> Files => Set<TheDriveAPI.Models.File>();
         public DbSet<Folder> Folders => Set<Folder>();
         public DbSet<FileVersion> FileVersions => Set<FileVersion>();
         public DbSet<SharedFile> SharedFiles => Set<SharedFile>();
@@ -34,7 +34,7 @@ namespace CyberCloudDriveAPI.Data
 
             // User-File relationship
             // File-Folder relationship
-            modelBuilder.Entity<CyberCloudDriveAPI.Models.File>()
+            modelBuilder.Entity<TheDriveAPI.Models.File>()
                 .HasOne(f => f.Folder)
                 .WithMany(fol => fol.Files)
                 .HasForeignKey(f => f.FolderId);
@@ -95,6 +95,11 @@ namespace CyberCloudDriveAPI.Data
                 .HasOne(st => st.User)
                 .WithMany()
                 .HasForeignKey(st => st.UserId);
+
+            // Configure decimal precision for Plan.Price
+            modelBuilder.Entity<Plan>()
+                .Property(p => p.Price)
+                .HasPrecision(18, 2);
         }
     }
 }

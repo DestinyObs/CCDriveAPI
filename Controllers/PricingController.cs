@@ -1,10 +1,10 @@
-using CyberCloudDriveAPI.Services;
-using CCDriveAPI.DTOs.Pricing;
+using TheDriveAPI.Services;
+using TheDriveAPI.DTOs.Pricing;
 using Microsoft.AspNetCore.Mvc;
-using CyberCloudDriveAPI.DTOs.Pricing;
+using TheDriveAPI.DTOs.Pricing;
 using Microsoft.AspNetCore.Authorization;
 
-namespace CyberCloudDriveAPI.Controllers
+namespace TheDriveAPI.Controllers
 {
     [ApiController]
     [Route("api/pricing")]

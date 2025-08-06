@@ -1,15 +1,17 @@
-using CyberCloudDriveAPI.DTOs.Auth;
-using CyberCloudDriveAPI.Models;
+using TheDriveAPI.DTOs.Auth;
+using TheDriveAPI.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 
-namespace CyberCloudDriveAPI.Services
+namespace TheDriveAPI.Services
 {
-    using CyberCloudDriveAPI.Data;
+    using TheDriveAPI.Data;
     using Microsoft.EntityFrameworkCore;
     public class AuthService : IAuthService
     {
@@ -53,23 +55,17 @@ namespace CyberCloudDriveAPI.Services
             var otpEntity = new OTP { UserId = user.Id, Otp = otp, ExpiresAt = now.AddMinutes(30), Used = false };
             _db.OTPs.Add(otpEntity);
             await _db.SaveChangesAsync();
-            // Send OTP via email using MailKit
-            var smtpServer = _config["SmtpSettings:Server"];
-            var smtpPort = int.Parse(_config["SmtpSettings:Port"] ?? "587");
-            var smtpUser = _config["SmtpSettings:Username"];
-            var smtpPass = _config["SmtpSettings:Password"];
-            var message = new MimeKit.MimeMessage();
-            message.From.Add(new MimeKit.MailboxAddress("CyberCloud Drive", smtpUser));
-            message.To.Add(new MimeKit.MailboxAddress(user.Name, user.Email));
-            message.Subject = "Your OTP Code";
-            message.Body = new MimeKit.TextPart("plain") { Text = $"Your OTP code is: {otp}" };
-            using (var client = new MailKit.Net.Smtp.SmtpClient())
-            {
-                await client.ConnectAsync(smtpServer, smtpPort, MailKit.Security.SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(smtpUser, smtpPass);
-                await client.SendAsync(message);
-                await client.DisconnectAsync(true);
-            }
+            // Send OTP via SendGrid
+            var sendGridApiKey = _config["SendGrid:ApiKey"];
+            var fromEmail = _config["SendGrid:FromEmail"] ?? "noreply@thedrive.com";
+            var fromName = _config["SendGrid:FromName"] ?? "TheDrive";
+            var client = new SendGrid.SendGridClient(sendGridApiKey);
+            var from = new SendGrid.Helpers.Mail.EmailAddress(fromEmail, fromName);
+            var to = new SendGrid.Helpers.Mail.EmailAddress(user.Email, user.Name);
+            var subject = "Your OTP Code";
+            var plainTextContent = $"Your OTP code is: {otp}";
+            var msg = SendGrid.Helpers.Mail.MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, null);
+            await client.SendEmailAsync(msg);
         }
 
         public async Task<AuthResponseDto> LoginAsync(LoginDto dto)
@@ -98,22 +94,17 @@ namespace CyberCloudDriveAPI.Services
             var user = await _userManager.FindByEmailAsync(dto.Email);
             if (user == null) return false;
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-            var smtpServer = _config["SmtpSettings:Server"];
-            var smtpPort = int.Parse(_config["SmtpSettings:Port"] ?? "587");
-            var smtpUser = _config["SmtpSettings:Username"];
-            var smtpPass = _config["SmtpSettings:Password"];
-            var message = new MimeKit.MimeMessage();
-            message.From.Add(new MimeKit.MailboxAddress("CyberCloud Drive", smtpUser));
-            message.To.Add(new MimeKit.MailboxAddress(user.Name, user.Email));
-            message.Subject = "Password Reset";
-            message.Body = new MimeKit.TextPart("plain") { Text = $"Your password reset token is: {token}" };
-            using (var client = new MailKit.Net.Smtp.SmtpClient())
-            {
-                await client.ConnectAsync(smtpServer, smtpPort, MailKit.Security.SecureSocketOptions.StartTls);
-                await client.AuthenticateAsync(smtpUser, smtpPass);
-                await client.SendAsync(message);
-                await client.DisconnectAsync(true);
-            }
+            // Send password reset email via SendGrid
+            var sendGridApiKey2 = _config["SendGrid:ApiKey"];
+            var fromEmail2 = _config["SendGrid:FromEmail"] ?? "noreply@thedrive.com";
+            var fromName2 = _config["SendGrid:FromName"] ?? "TheDrive";
+            var client2 = new SendGrid.SendGridClient(sendGridApiKey2);
+            var from2 = new SendGrid.Helpers.Mail.EmailAddress(fromEmail2, fromName2);
+            var to2 = new SendGrid.Helpers.Mail.EmailAddress(user.Email, user.Name);
+            var subject2 = "Password Reset";
+            var plainTextContent2 = $"Your password reset token is: {token}";
+            var msg2 = SendGrid.Helpers.Mail.MailHelper.CreateSingleEmail(from2, to2, subject2, plainTextContent2, null);
+            await client2.SendEmailAsync(msg2);
             return true;
         }
 

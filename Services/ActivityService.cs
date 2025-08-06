@@ -1,11 +1,11 @@
-using CyberCloudDriveAPI.Models;
-using CyberCloudDriveAPI.DTOs.Activity;
+using TheDriveAPI.Models;
+using TheDriveAPI.DTOs.Activity;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Collections.Generic;
-using CyberCloudDriveAPI.Data;
+using TheDriveAPI.Data;
 
-namespace CyberCloudDriveAPI.Services
+namespace TheDriveAPI.Services
 {
     public interface IActivityService
     {

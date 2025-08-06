@@ -1,4 +1,4 @@
-namespace CCDriveAPI.DTOs.File
+namespace TheDriveAPI.DTOs.File
 {
     public class FileMoveDto
     {
