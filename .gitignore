@@ -17,8 +17,8 @@ appsettings.*.json
 secrets.json
 
 
-# Helm secrets - keep your actual values.yaml file local only
-helm/**/values.yaml
+# Helm secrets - keep secrets.yaml local only (never commit to git)
+helm/**/secrets.yaml
 
 node_modules/
 bin/
