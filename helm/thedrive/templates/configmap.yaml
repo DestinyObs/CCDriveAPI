@@ -1,0 +1,53 @@
+# ConfigMap Template
+# This template creates a Kubernetes ConfigMap to store non-sensitive configuration data
+#
+# Security Principle: ConfigMaps vs Secrets
+# - ConfigMaps: Non-sensitive data that can be viewed by anyone with cluster access
+# - Secrets: Sensitive data that requires special handling and encryption
+# - This separation follows security best practices
+#
+# Configuration Categories:
+# - Database connection details (non-sensitive: host, port, database name)
+# - JWT configuration (non-sensitive: issuer, audience, expiration)
+# - Email service configuration (non-sensitive: from email, display name)
+# - Storage configuration (non-sensitive: endpoints, bucket names, regions)
+# - Application runtime configuration (environment, URLs, hosts)
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  # ConfigMap name using Helm template function for consistent naming
+  name: {{ include "thedrive.fullname" . }}-config
+  labels:
+    # Standard Helm labels for resource management
+    {{- include "thedrive.labels" . | nindent 4 }}
+data:
+  # Database connection configuration (non-sensitive)
+  # Sensitive data like passwords are stored in Secret, not here
+  DB_NAME: {{ .Values.api.env.dbName | quote }}                    # Target database name
+  DB_HOST: {{ include "thedrive.fullname" . }}-mssql-service       # Service name for database
+  DB_PORT: "1433"                                                  # SQL Server default port
+  
+  # JWT authentication configuration (non-sensitive parts)
+  # The actual signing secret is stored in Secret for security
+  JWT_ISSUER: {{ .Values.api.env.jwtIssuer | quote }}              # Token issuer identifier
+  JWT_AUDIENCE: {{ .Values.api.env.jwtAudience | quote }}          # Token audience identifier  
+  JWT_EXPIRATION_HOURS: {{ .Values.api.env.jwtExpirationHours | quote }}  # Token lifetime
+  
+  # SendGrid email service configuration (non-sensitive parts)
+  # API key is stored in Secret for security
+  SENDGRID_FROM_EMAIL: {{ .Values.api.env.sendgridFromEmail | quote }}    # Sender email address
+  SENDGRID_FROM_NAME: {{ .Values.api.env.sendgridFromName | quote }}      # Sender display name
+  
+  # S3 object storage configuration (non-sensitive parts)
+  # Secret access key is stored in Secret for security
+  S3_ENDPOINT: {{ .Values.api.env.s3Endpoint | quote }}            # S3 service endpoint URL
+  S3_ACCESS_KEY: {{ .Values.api.env.s3AccessKey | quote }}         # S3 access key ID (public part)
+  S3_BUCKET: {{ .Values.api.env.s3Bucket | quote }}               # S3 bucket name for file storage
+  S3_REGION: {{ .Values.api.env.s3Region | quote }}               # AWS region for S3 bucket
+  
+  # ASP.NET Core application configuration
+  # These control how the application runs and binds to network interfaces
+  ASPNETCORE_ENVIRONMENT: {{ .Values.api.env.aspnetcoreEnvironment | quote }}  # Runtime environment
+  ASPNETCORE_URLS: "http://+:{{ .Values.api.service.targetPort }}"            # Binding configuration
+  ALLOWED_HOSTS: {{ .Values.api.env.allowedHosts | quote }}                    # Security: allowed host headers

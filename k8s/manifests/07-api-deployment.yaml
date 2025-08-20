@@ -1,0 +1,97 @@
+# Deployment: Manages TheDrive API pods
+# This is like the "api" service in your docker-compose.yml
+# Unlike SQL Server, we can run multiple copies of our API for better performance
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thedrive-api-deployment
+  namespace: thedrive
+  labels:
+    app: thedrive-api
+spec:
+  replicas: 2               # Run 2 copies of our API for load balancing
+                            # K8s will distribute traffic between them
+  selector:
+    matchLabels:
+      app: thedrive-api
+  template:
+    metadata:
+      labels:
+        app: thedrive-api
+    spec:
+      containers:
+      - name: thedrive-api
+        image: destinyobs/thedrive-upload-api:latest  # Your image from Docker Hub
+        ports:
+        - containerPort: 5256   # Same port your API listens on
+          name: http
+        
+        env:
+        # Configuration from ConfigMap (non-sensitive)
+        - name: ASPNETCORE_ENVIRONMENT
+          valueFrom:
+            configMapKeyRef:
+              name: thedrive-config
+              key: ASPNETCORE_ENVIRONMENT
+        - name: ASPNETCORE_URLS
+          valueFrom:
+            configMapKeyRef:
+              name: thedrive-config
+              key: ASPNETCORE_URLS
+        - name: DB_NAME
+          valueFrom:
+            configMapKeyRef:
+              name: thedrive-config
+              key: DB_NAME
+        - name: JWT_ISSUER
+          valueFrom:
+            configMapKeyRef:
+              name: thedrive-config
+              key: JWT_ISSUER
+        - name: JWT_AUDIENCE
+          valueFrom:
+            configMapKeyRef:
+              name: thedrive-config
+              key: JWT_AUDIENCE
+        
+        # Sensitive configuration from Secret
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: thedrive-secrets
+              key: sa-password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: thedrive-secrets
+              key: jwt-secret
+        
+        # Build the database connection string
+        # Notice we use "mssql-service" instead of "localhost" or an IP address
+        - name: ConnectionStrings__DefaultConnection
+          value: "Server=mssql-service,1433;Database=TheDriveAPI;User Id=sa;Password=$(SA_PASSWORD);TrustServerCertificate=True;MultipleActiveResultSets=true;"
+        
+        # Resource limits (prevents one API pod from using all server resources)
+        resources:
+          requests:
+            memory: "256Mi"     # Minimum memory guaranteed
+            cpu: "100m"         # 0.1 CPU cores minimum
+          limits:
+            memory: "512Mi"     # Maximum memory allowed
+            cpu: "250m"         # 0.25 CPU cores maximum
+        
+        # Health checks to know when the API is working
+        livenessProbe:          # If this fails, K8s will restart the pod
+          httpGet:
+            path: /swagger      # Check if swagger page loads
+            port: 5256
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:         # If this fails, K8s won't send traffic to this pod
+          httpGet:
+            path: /swagger
+            port: 5256
+          initialDelaySeconds: 5
+          periodSeconds: 10
+---

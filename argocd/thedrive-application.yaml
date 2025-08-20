@@ -1,0 +1,80 @@
+# ArgoCD Application for TheDrive
+# This Application tells ArgoCD to monitor your GitHub repository and automatically
+# deploy the Helm chart whenever changes are detected.
+#
+# GitOps Workflow:
+# 1. Developer pushes changes to GitHub repo (helm/thedrive folder)
+# 2. ArgoCD detects changes automatically (polls every 3 minutes by default)
+# 3. ArgoCD applies the changes to the Kubernetes cluster
+# 4. ArgoCD shows deployment status in the UI
+# 5. If deployment fails, ArgoCD can automatically rollback
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: thedrive-app                        # Application name in ArgoCD UI
+  namespace: argocd                         # ArgoCD applications live in argocd namespace
+  labels:
+    app: thedrive                           # Label for organization
+spec:
+  # Project configuration
+  # 'default' project has basic RBAC and allows deployment to any namespace
+  project: default
+  
+  # Source configuration - where ArgoCD should get the manifests
+  source:
+    repoURL: https://github.com/destinyobs/CCDriveAPI.git  # Your GitHub repository
+    targetRevision: main                   # Git branch to monitor (main branch)
+    path: helm/thedrive                    # Path to Helm chart in the repository
+    
+    # Helm-specific configuration
+    helm:
+      # Use values.yaml from the repository
+      valueFiles:
+      - values.yaml
+      
+      # Optional: Override specific values for this deployment
+      # Uncomment and modify as needed:
+      # parameters:
+      # - name: api.replicaCount
+      #   value: "3"
+      # - name: database.resources.limits.memory
+      #   value: "6Gi"
+  
+  # Destination configuration - where ArgoCD should deploy
+  destination:
+    server: https://kubernetes.default.svc  # Deploy to the same cluster ArgoCD runs on
+    namespace: thedrive                     # Target namespace for deployment
+  
+  # Sync policy configuration
+  syncPolicy:
+    # Automatic sync configuration
+    automated:
+      prune: true          # Remove resources that are no longer in Git
+      selfHeal: true       # Fix drift when someone manually changes resources
+      allowEmpty: false    # Don't sync if the source is empty
+    
+    # Sync options for better deployment behavior
+    syncOptions:
+    - CreateNamespace=true    # Automatically create the target namespace
+    - PrunePropagationPolicy=foreground  # Wait for resources to be fully deleted
+    - PruneLast=true         # Delete resources after creating new ones
+    
+    # Retry policy for failed syncs
+    retry:
+      limit: 5               # Try up to 5 times
+      backoff:
+        duration: 5s         # Start with 5 second delay
+        factor: 2            # Double the delay each retry
+        maxDuration: 3m      # Maximum delay between retries
+  
+  # Health check configuration
+  # ArgoCD will monitor these resources for health status
+  ignoreDifferences:
+  - group: apps
+    kind: Deployment
+    jsonPointers:
+    - /spec/replicas        # Ignore replica count differences (for HPA compatibility)
+  
+  # Additional configuration for monitoring
+  revisionHistoryLimit: 10  # Keep last 10 deployment revisions for rollback

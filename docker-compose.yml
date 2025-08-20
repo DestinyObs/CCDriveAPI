@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # MSSQL Database Service
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: mssql-server
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+      - MSSQL_PID=Express
+    ports:
+      - "${DB_PORT}:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - thedrive-network
+    restart: unless-stopped
+    healthcheck:
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -C -Q "SELECT 1"
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Database Initialization Service
+  db-init:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db-init
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=${SA_PASSWORD}
+    volumes:
+      - ./init-db.sql:/tmp/init-db.sql
+    networks:
+      - thedrive-network
+    depends_on:
+      mssql:
+        condition: service_healthy
+    command: >
+      bash -c "
+        echo 'Waiting for SQL Server to be ready...' &&
+        sleep 10 &&
+        echo 'Running database initialization...' &&
+        /opt/mssql-tools18/bin/sqlcmd -S mssql,1433 -U sa -P '${SA_PASSWORD}' -C -i /tmp/init-db.sql &&
+        echo 'Database initialization completed successfully'
+      "
+    restart: "no"
+
+  # TheDrive API Service (handles migrations and runs API)
+  api:
+    build: .
+    container_name: thedrive-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}
+      - ASPNETCORE_URLS=http://+:5256
+      - ConnectionStrings__DefaultConnection=Server=mssql,1433;Database=${DB_NAME};User Id=sa;Password=${SA_PASSWORD};TrustServerCertificate=True;MultipleActiveResultSets=true;
+      - JWT__Secret=${JWT_SECRET}
+      - JWT__Issuer=${JWT_ISSUER}
+      - JWT__Audience=${JWT_AUDIENCE}
+      - SendGrid__ApiKey=${SENDGRID_API_KEY}
+      - SendGrid__FromEmail=${SENDGRID_FROM_EMAIL}
+      - SendGrid__FromName=${SENDGRID_FROM_NAME}
+      - S3__AccessKey=${S3_ACCESS_KEY}
+      - S3__SecretKey=${S3_SECRET_KEY}
+      - S3__Bucket=${S3_BUCKET}
+      - S3__Region=${S3_REGION}
+      - S3__Endpoint=${S3_ENDPOINT}
+      - Ceph__AccessKey=${CEPH_ACCESS_KEY}
+      - Ceph__SecretKey=${CEPH_SECRET_KEY}
+      - Ceph__Bucket=${CEPH_BUCKET}
+      - Ceph__Region=${CEPH_REGION}
+      - Ceph__Endpoint=${CEPH_ENDPOINT}
+    ports:
+      - "5256:5256"
+    depends_on:
+      db-init:
+        condition: service_completed_successfully
+    networks:
+      - thedrive-network
+    restart: unless-stopped
+
+volumes:
+  mssql_data:
+
+networks:
+  thedrive-network:
+    driver: bridge

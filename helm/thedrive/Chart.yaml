@@ -1,0 +1,69 @@
+# Helm Chart Metadata
+# This file defines the chart package information and requirements.
+# Similar to package.json in Node.js or requirements.txt in Python.
+
+# Helm chart API version - v2 is required for Helm 3
+apiVersion: v2
+
+# Chart identification
+name: thedrive                          # Chart name - must match directory name
+description: |                          # Multi-line description of the application
+  TheDrive File Upload API - A complete cloud storage solution
+  Features: User authentication, file upload/download, folder management,
+  file sharing, version control, and administrative capabilities.
+  
+  Built with ASP.NET Core 6, Entity Framework, SQL Server, and AWS S3.
+
+# Chart type - "application" for deployable apps, "library" for template libraries  
+type: application
+
+# Versioning strategy
+version: 0.1.0                         # Chart version - increment when chart changes
+appVersion: "1.0.0"                    # Application version - your software version
+
+# Application metadata for discovery and categorization
+keywords:
+  - file-upload                        # Primary functionality
+  - cloud-storage                      # Domain category
+  - api                               # Technology type
+  - dotnet                            # Framework
+  - asp-net-core                      # Specific technology
+  - entity-framework                  # ORM
+  - sql-server                        # Database
+  - aws-s3                           # Storage backend
+
+# Maintainer information for support and contact
+maintainers:
+  - name: Destiny Obioma
+    email: destinyobs@example.com
+    url: https://github.com/destinyobs
+
+# Project links for documentation and source code
+home: https://github.com/destinyobs/CCDriveAPI
+sources:
+  - https://github.com/destinyobs/CCDriveAPI
+
+# Kubernetes compatibility requirements
+kubeVersion: ">=1.20.0"               # Minimum Kubernetes version for compatibility
+
+# Dependencies (currently none - all services included in this chart)
+# dependencies:
+#   - name: postgresql
+#     version: 12.x.x
+#     repository: https://charts.bitnami.com/bitnami
+#     condition: postgresql.enabled
+
+# Annotations for additional metadata
+annotations:
+  # Category for artifact hub and chart repositories
+  category: "Developer Tools"
+  
+  # License information
+  licenses: "MIT"
+  
+  # Links for additional resources
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://github.com/destinyobs/CCDriveAPI/blob/main/README.md
+    - name: Chart Source
+      url: https://github.com/destinyobs/CCDriveAPI/tree/main/helm/thedrive

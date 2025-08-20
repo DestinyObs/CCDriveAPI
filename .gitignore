@@ -1,0 +1,68 @@
+appsettings.json
+Migrations/
+appsettings.*.json
+.env*
+*.mdf
+*.ldf
+*.sqlite
+*.bak
+*.log
+*.db
+*.pem
+*.key
+*.crt
+*.pfx
+*.awscredentials
+*.s3config
+secrets.json
+
+
+# Helm secrets - keep your actual values.yaml file local only
+helm/**/values.yaml
+
+node_modules/
+bin/
+obj/
+.vs/
+.vscode/
+*.user
+*.suo
+*.userosscache
+*.rsuser
+*.userprefs
+*.code-workspace
+publish/
+*.Publish.xml
+*.pubxml
+*.publishproj
+*.nupkg
+packages/
+*.pdb
+*.cab
+*.msi
+*.msm
+*.msp
+*.lnk
+.idea/
+*.sln.iml
+# .NET Core
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.vs/
+.vscode/
+# Docker
+*.db
+*.pdb
+*.mdb
+*.log
+# OS
+.DS_Store
+Thumbs.db
+# Environment
+.env
+# Others
+node_modules/

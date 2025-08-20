@@ -1,0 +1,19 @@
+# PersistentVolumeClaim template - Requests storage for the database
+# Size and storage class can be configured in values.yaml
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "thedrive.fullname" . }}-mssql-data-pvc
+  labels:
+    {{- include "thedrive.labels" . | nindent 4 }}
+    component: database
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.database.storage.size }}
+  {{- if .Values.database.storage.storageClass }}
+  storageClassName: {{ .Values.database.storage.storageClass }}
+  {{- end }}

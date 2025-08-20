@@ -1,0 +1,12 @@
+# Namespace: Creates a logical separation for our application
+# Think of it like a folder that contains all our app components
+# This keeps our TheDrive app separate from other apps in the cluster
+
+apiVersion: v1          # Which version of Kubernetes API to use
+kind: Namespace         # What type of object this is
+metadata:               # Information about this object
+  name: thedrive        # The name we'll use to reference this namespace
+  labels:               # Tags to help organize and find this object
+    app: thedrive
+    environment: learning
+---

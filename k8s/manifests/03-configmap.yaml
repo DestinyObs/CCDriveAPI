@@ -1,0 +1,35 @@
+# ConfigMap: Stores non-sensitive configuration data
+# This replaces the non-sensitive parts of your .env file
+# Unlike secrets, these values are stored in plain text
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: thedrive-config     # Name we'll use to reference this config
+  namespace: thedrive
+data:
+  # Database configuration
+  DB_NAME: "TheDriveAPI"
+  DB_HOST: "mssql-service"  # This will be our SQL Server service name (like localhost but for K8s)
+  DB_PORT: "1433"
+  
+  # JWT configuration (non-sensitive parts)
+  JWT_ISSUER: "TheDriveAPI"
+  JWT_AUDIENCE: "TheDriveAPI"
+  JWT_EXPIRATION_HOURS: "24"
+  
+  # SendGrid configuration (non-sensitive parts)
+  SENDGRID_FROM_EMAIL: "noreply@thedrive.com"
+  SENDGRID_FROM_NAME: "TheDrive"
+  
+  # S3 configuration (non-sensitive parts)
+  S3_ENDPOINT: "https://s3.amazonaws.com"
+  S3_ACCESS_KEY: "AKIA5DLF5MRJSF24BDFP"    # This is already public in your repo, so it's okay here
+  S3_BUCKET: "thedrive-files"
+  S3_REGION: "us-east-1"
+  
+  # Application configuration
+  ASPNETCORE_ENVIRONMENT: "Production"
+  ASPNETCORE_URLS: "http://+:5256"          # This tells your API to listen on port 5256
+  ALLOWED_HOSTS: "*"
+---

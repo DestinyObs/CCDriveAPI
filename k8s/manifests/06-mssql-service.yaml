@@ -1,0 +1,24 @@
+# Service: Provides stable network access to SQL Server pods
+# Even if the SQL Server pod restarts and gets a new IP address,
+# this service name (mssql-service) always works
+# Think of it like DNS - other pods can use "mssql-service" as the hostname
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: mssql-service       # This is the hostname your API will use to connect to SQL Server
+  namespace: thedrive
+  labels:
+    app: mssql
+spec:
+  type: ClusterIP           # Only accessible within the cluster (not from outside)
+                            # This is perfect for databases - only your API should access it
+  ports:
+  - port: 1433              # Port that other services use to connect
+    targetPort: 1433        # Port that the SQL Server container is listening on
+    protocol: TCP
+    name: mssql
+  selector:
+    app: mssql              # Route traffic to pods with this label
+                            # (the pods created by our mssql-deployment above)
+---

@@ -1,0 +1,49 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "thedrive.fullname" . }}-db-init-job
+  labels:
+    {{- include "thedrive.labels" . | nindent 4 }}
+    component: db-init
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "thedrive.selectorLabels" . | nindent 8 }}
+        component: db-init
+    spec:
+      restartPolicy: OnFailure
+      initContainers:
+      - name: wait-for-mssql
+        image: busybox:1.35
+        command: ['sh', '-c']
+        args:
+        - |
+          echo "Waiting for SQL Server to be ready..."
+          until nc -z {{ include "thedrive.fullname" . }}-mssql-service 1433; do
+            echo "SQL Server not ready yet, waiting 5 seconds..."
+            sleep 5
+          done
+          echo "SQL Server is ready!"
+      containers:
+      - name: db-init
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          echo "Running database initialization script..."
+          /opt/mssql-tools18/bin/sqlcmd -S {{ include "thedrive.fullname" . }}-mssql-service,1433 -U sa -P "${SA_PASSWORD}" -C -i /tmp/init-db.sql
+          echo "Database initialization completed!"
+        env:
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "thedrive.fullname" . }}-secrets
+              key: sa-password
+        volumeMounts:
+        - name: db-init-script
+          mountPath: /tmp
+      volumes:
+      - name: db-init-script
+        configMap:
+          name: {{ include "thedrive.fullname" . }}-db-init

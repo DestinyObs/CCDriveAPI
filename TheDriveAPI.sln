@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TheDriveAPI", "TheDriveAPI.csproj", "{518A5E2F-E017-0878-04F9-BB2566D012EB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{518A5E2F-E017-0878-04F9-BB2566D012EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{518A5E2F-E017-0878-04F9-BB2566D012EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{518A5E2F-E017-0878-04F9-BB2566D012EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{518A5E2F-E017-0878-04F9-BB2566D012EB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {FF35475D-252E-4437-9478-522ED6A05D97}
+	EndGlobalSection
+EndGlobal

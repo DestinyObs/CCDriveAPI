@@ -1,0 +1,114 @@
+# SQL Server Deployment Template
+# This template creates a Kubernetes Deployment for SQL Server 2022 Express
+#
+# Database Features:
+# - Single replica deployment (SQL Server Express limitation)
+# - Persistent storage for data durability across pod restarts
+# - Resource limits appropriate for development/testing workloads
+# - Environment-based configuration via Secret references
+#
+# Storage Strategy:
+# - Uses PersistentVolumeClaim for data persistence
+# - Database files survive pod deletions and recreations
+# - Suitable for development environments
+# - For production, consider external managed database services
+#
+# Security:
+# - SA password stored in Kubernetes Secret
+# - Container runs with SQL Server's built-in security
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Deployment name using Helm template function for consistent naming
+  name: {{ include "thedrive.fullname" . }}-mssql-deployment
+  labels:
+    # Standard Helm labels for resource management
+    {{- include "thedrive.labels" . | nindent 4 }}
+    # Component label to identify this as the database component
+    component: database
+spec:
+  # Single replica - SQL Server Express doesn't support clustering
+  # For production, use SQL Server Standard/Enterprise with Always On
+  replicas: 1
+  
+  # Selector to match pods managed by this deployment
+  selector:
+    matchLabels:
+      {{- include "thedrive.selectorLabels" . | nindent 6 }}
+      component: database
+  
+  # Pod template specification
+  template:
+    metadata:
+      labels:
+        {{- include "thedrive.selectorLabels" . | nindent 8 }}
+        component: database
+    spec:
+      containers:
+      # SQL Server 2022 Express container
+      - name: mssql
+        # Microsoft's official SQL Server 2022 Express Linux image
+        image: {{ .Values.database.image }}
+        
+        # Standard SQL Server port
+        ports:
+        - containerPort: 1433
+          name: mssql
+        
+        # Environment variables for SQL Server configuration
+        env:
+        # Accept Microsoft's End User License Agreement (required)
+        - name: ACCEPT_EULA
+          value: "Y"
+        
+        # SQL Server Product ID - Express edition for free usage
+        - name: MSSQL_PID
+          value: "Express"
+        
+        # SA (System Administrator) password from Secret
+        # Must meet SQL Server complexity requirements:
+        # - At least 8 characters
+        # - Contains characters from 3 of 4 categories: uppercase, lowercase, digits, symbols
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "thedrive.fullname" . }}-secrets
+              key: sa-password
+        
+        # Resource constraints for proper cluster resource management
+        # SQL Server Express has built-in limitations but still needs resource controls
+        resources:
+          {{- toYaml .Values.database.resources | nindent 10 }}
+        
+        # Persistent storage mount for database files
+        # Critical for data persistence across pod restarts and recreations
+        volumeMounts:
+        - name: mssql-data                    # Volume name reference
+          mountPath: /var/opt/mssql           # SQL Server data directory
+        
+        # Health checks for SQL Server
+        # TCP socket checks are more reliable than HTTP for database services
+        readinessProbe:
+          tcpSocket:
+            port: 1433                       # SQL Server port
+          initialDelaySeconds: 30            # Wait for SQL Server startup
+          periodSeconds: 10                  # Check every 10 seconds
+          timeoutSeconds: 5                  # Connection timeout
+          
+        livenessProbe:
+          tcpSocket:
+            port: 1433                       # SQL Server port
+          initialDelaySeconds: 60            # Longer wait for initial startup
+          periodSeconds: 30                  # Check less frequently for liveness
+          timeoutSeconds: 10                 # Longer timeout for liveness
+      
+      # Volume definitions for persistent storage
+      # Links the pod to the PersistentVolumeClaim for data persistence
+      volumes:
+      - name: mssql-data                     # Volume name used in volumeMounts
+        persistentVolumeClaim:
+          claimName: {{ include "thedrive.fullname" . }}-mssql-pvc  # PVC reference
+      - name: mssql-data
+        persistentVolumeClaim:
+          claimName: {{ include "thedrive.fullname" . }}-mssql-data-pvc

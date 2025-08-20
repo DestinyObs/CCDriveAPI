@@ -1,0 +1,71 @@
+# Global settings that apply to all components
+global:
+  namespace: thedrive-app
+
+# Database (SQL Server) configuration
+database:
+  image: mcr.microsoft.com/mssql/server:2022-latest
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "500m"
+  storage:
+    size: "1Gi"
+    storageClass: ""  # Use default storage class
+  
+  # Database credentials (these will be stored as Kubernetes secrets)
+  auth:
+    saPassword: "CHANGE_ME_YOUR_DATABASE_PASSWORD"
+
+# API application configuration
+api:
+  image: destinyobs/thedrive-upload-api:latest
+  replicaCount: 2  # How many API pods to run (for high availability)
+  
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  
+  # Service configuration (how to access your API)
+  service:
+    type: NodePort
+    port: 80
+    targetPort: 5256
+    nodePort: 30256  # External port for accessing your API
+  
+  # Environment variables for your API
+  env:
+    dbName: "TheDriveAPI"
+    jwtIssuer: "TheDriveAPI"
+    jwtAudience: "TheDriveAPI"
+    jwtExpirationHours: "24"
+    sendgridFromEmail: "noreply@yourdomain.com"
+    sendgridFromName: "TheDrive"
+    s3Endpoint: "https://s3.amazonaws.com"
+    s3AccessKey: "YOUR_S3_ACCESS_KEY"
+    s3Bucket: "your-s3-bucket-name"
+    s3Region: "us-east-1"
+    aspnetcoreEnvironment: "Production"
+    allowedHosts: "*"
+
+# Secrets (sensitive data that shouldn't be in plain text)
+# IMPORTANT: Replace these with your actual secrets
+secrets:
+  jwtSecret: "CHANGE_ME_32_CHAR_JWT_SECRET_KEY"
+  sendgridApiKey: "CHANGE_ME_YOUR_SENDGRID_API_KEY"
+  s3SecretKey: "CHANGE_ME_YOUR_S3_SECRET_KEY"
+
+# Ingress configuration (advanced networking - we'll skip this for now)
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts: []
+  tls: []

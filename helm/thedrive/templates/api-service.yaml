@@ -1,0 +1,45 @@
+# API Service Template
+# This template creates a Kubernetes Service to expose the TheDrive API
+#
+# Service Type: NodePort
+# - Exposes the API on a high-numbered port (30000-32767) on all cluster nodes
+# - Allows external access to the API from outside the Kubernetes cluster
+# - Alternative to LoadBalancer for cost-effective external access
+#
+# Key Features:
+# - Routes traffic to healthy API pods via selector labels
+# - Maps external NodePort to internal container port
+# - Provides service discovery within the cluster via service name
+# - Load balances traffic across multiple API pod replicas
+
+apiVersion: v1
+kind: Service
+metadata:
+  # Service name using Helm template function for consistent naming
+  name: {{ include "thedrive.fullname" . }}-api-service
+  labels:
+    # Standard Helm labels for resource management
+    {{- include "thedrive.labels" . | nindent 4 }}
+    # Component label to identify this as the API service
+    component: api
+spec:
+  # Service type determines how the service is exposed
+  type: {{ .Values.api.service.type }}  # NodePort for external access
+  
+  # Port configuration
+  ports:
+  - port: {{ .Values.api.service.port }}              # Port for internal cluster access (80)
+    targetPort: {{ .Values.api.service.targetPort }}  # Port on the container (5256)
+    protocol: TCP
+    name: http
+    # NodePort configuration for external access
+    # Only applied when service type is NodePort and nodePort is specified
+    {{- if and (eq .Values.api.service.type "NodePort") .Values.api.service.nodePort }}
+    nodePort: {{ .Values.api.service.nodePort }}
+    {{- end }}
+  
+  # Selector to route traffic to API pods
+  # Must match the labels on the API deployment pods
+  selector:
+    {{- include "thedrive.selectorLabels" . | nindent 4 }}
+    component: api  # Only route to pods with component=api label

@@ -1,0 +1,19 @@
+# PersistentVolumeClaim: Requests storage from the cluster
+# This ensures our database data survives even if the database pod gets deleted/restarted
+# Think of it like creating a "virtual hard drive" for our database
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mssql-data-pvc      # Name we'll use to reference this storage
+  namespace: thedrive
+spec:
+  resources:
+    requests:
+      storage: 1Gi          # Request 1 gigabyte of storage (adjust as needed)
+  accessModes:
+    - ReadWriteOnce         # Only one pod can write to this storage at a time
+                            # (SQL Server doesn't like multiple writers to same files)
+  storageClassName: local-path  # K3s comes with this storage class built-in
+                                # It creates storage on the local machine
+---

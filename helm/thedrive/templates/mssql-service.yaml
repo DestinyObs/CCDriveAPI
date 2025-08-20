@@ -1,0 +1,20 @@
+# SQL Server Service template - Provides stable network access to database
+# Creates internal DNS name that API pods can use to connect
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "thedrive.fullname" . }}-mssql-service
+  labels:
+    {{- include "thedrive.labels" . | nindent 4 }}
+    component: database
+spec:
+  type: ClusterIP  # Internal only - API connects to this
+  ports:
+  - port: 1433
+    targetPort: 1433
+    protocol: TCP
+    name: mssql
+  selector:
+    {{- include "thedrive.selectorLabels" . | nindent 4 }}
+    component: database

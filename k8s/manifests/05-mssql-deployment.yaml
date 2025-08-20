@@ -1,0 +1,76 @@
+# Deployment: Manages SQL Server pods and handles updates/scaling
+# This is like the "mssql" service in your docker-compose.yml but more powerful
+# A Deployment can restart pods if they crash, update them, etc.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mssql-deployment
+  namespace: thedrive
+  labels:
+    app: mssql
+spec:
+  replicas: 1               # We want exactly 1 SQL Server pod running
+                            # (SQL Server doesn't support clustering without Enterprise license)
+  selector:
+    matchLabels:
+      app: mssql            # This deployment manages pods with the label "app: mssql"
+  template:
+    metadata:
+      labels:
+        app: mssql          # Every pod created gets this label
+    spec:
+      containers:
+      - name: mssql
+        image: mcr.microsoft.com/mssql/server:2022-latest 
+        ports:
+        - containerPort: 1433
+          name: mssql
+        env:
+        - name: ACCEPT_EULA
+          value: "Y"
+        - name: MSSQL_PID
+          value: "Express"
+        - name: SA_PASSWORD
+          valueFrom:            # Get this value from the secret
+            secretKeyRef:
+              name: thedrive-secrets
+              key: sa-password
+        
+        # Resource limits (prevents SQL Server from using all server memory)
+        resources:
+          requests:             # Minimum resources guaranteed
+            memory: "512Mi"
+            cpu: "250m"         # 250 milliCPU = 0.25 CPU cores
+          limits:               # Maximum resources allowed
+            memory: "1Gi"
+            cpu: "500m"
+        
+        # Mount our persistent storage
+        volumeMounts:
+        - name: mssql-data
+          mountPath: /var/opt/mssql  # Where SQL Server stores its data files
+        
+        # Simplified readiness probe that doesn't rely on environment variable expansion
+        # Uses TCP socket check instead of sqlcmd which was failing due to password issues
+        readinessProbe:
+          tcpSocket:
+            port: 1433
+          initialDelaySeconds: 30   # Wait 30 seconds before first check
+          periodSeconds: 10         # Check every 10 seconds
+          timeoutSeconds: 5         # Give up after 5 seconds
+        
+        # Also add a liveness probe to help Kubernetes know when to restart the container
+        livenessProbe:
+          tcpSocket:
+            port: 1433
+          initialDelaySeconds: 60   # Wait 60 seconds before first check
+          periodSeconds: 30         # Check every 30 seconds
+          timeoutSeconds: 5         # Give up after 5 seconds
+      
+      # Define the storage volume
+      volumes:
+      - name: mssql-data
+        persistentVolumeClaim:
+          claimName: mssql-data-pvc  # Use the storage we requested above
+---

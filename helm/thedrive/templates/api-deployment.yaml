@@ -1,0 +1,138 @@
+# API Deployment Template
+# This template creates a Kubernetes Deployment for the TheDrive API application
+# 
+# Key Features:
+# - Manages multiple replicas of the API pod for high availability
+# - Includes init container to ensure database is ready before API starts
+# - Configures resource limits and requests for proper resource management
+# - Sets up health checks (readiness and liveness probes) for Kubernetes orchestration
+# - Loads configuration from ConfigMap and secrets from Secret
+# - Uses rolling update strategy for zero-downtime deployments
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # Deployment name using Helm template function for consistent naming
+  name: {{ include "thedrive.fullname" . }}-api-deployment
+  labels:
+    # Standard Helm labels for resource management and querying
+    {{- include "thedrive.labels" . | nindent 4 }}
+    # Component label to identify this as the API component
+    component: api
+spec:
+  # Number of API pod replicas - configurable via values.yaml
+  replicas: {{ .Values.api.replicaCount }}
+  
+  # Selector to match pods managed by this deployment
+  selector:
+    matchLabels:
+      {{- include "thedrive.selectorLabels" . | nindent 6 }}
+      component: api
+  
+  # Pod template specification
+  template:
+    metadata:
+      labels:
+        {{- include "thedrive.selectorLabels" . | nindent 8 }}
+        component: api
+    spec:
+      # Init container ensures database is ready before API starts
+      # This prevents connection failures during startup
+      initContainers:
+      - name: wait-for-db
+        image: busybox:1.35  # Lightweight image with network tools
+        command: ['sh', '-c']
+        args:
+        - |
+          echo "Waiting for SQL Server to be ready..."
+          # Use netcat to test database service connectivity
+          until nc -z {{ include "thedrive.fullname" . }}-mssql-service 1433; do
+            echo "SQL Server not ready yet, waiting 5 seconds..."
+            sleep 5
+          done
+          echo "SQL Server is ready!"
+      
+      # Main application containers
+      containers:
+      - name: api
+        # Docker image for the TheDrive API application
+        image: {{ .Values.api.image }}
+        
+        # Container port configuration
+        ports:
+        - containerPort: {{ .Values.api.service.targetPort }}
+          name: http  # Named port for service reference
+        
+        # Environment variable loading strategy:
+        # 1. Load all non-sensitive config from ConfigMap
+        # 2. Load all sensitive data from Secret
+        # 3. Override specific values with explicit environment variables
+        envFrom:
+        - configMapRef:
+            name: {{ include "thedrive.fullname" . }}-config
+        - secretRef:
+            name: {{ include "thedrive.fullname" . }}-secrets
+        
+        # Explicit environment variables for critical configuration
+        # These override any conflicting values from envFrom above
+        env:
+        # Database connection string built in Secret template with actual password
+        # This approach ensures the password is properly substituted at template time
+        - name: ConnectionStrings__DefaultConnection
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "thedrive.fullname" . }}-secrets
+              key: connection-string
+        
+        # Individual secret references for transparency and debugging
+        - name: SA_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "thedrive.fullname" . }}-secrets
+              key: sa-password
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "thedrive.fullname" . }}-secrets
+              key: jwt-secret
+        - name: SENDGRID_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "thedrive.fullname" . }}-secrets
+              key: sendgrid-api-key
+        - name: S3_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ include "thedrive.fullname" . }}-secrets
+              key: s3-secret-key
+        
+        # Resource constraints for proper cluster resource management
+        # Values come from values.yaml and should match actual application requirements
+        resources:
+          {{- toYaml .Values.api.resources | nindent 10 }}
+        
+        # Health checks for Kubernetes orchestration
+        # Readiness probe: Determines when pod is ready to receive traffic
+        # - Used by Services to route traffic only to ready pods
+        # - Failure removes pod from service endpoints temporarily
+        readinessProbe:
+          httpGet:
+            path: /swagger  # Swagger endpoint is always available in this API
+            port: {{ .Values.api.service.targetPort }}
+          initialDelaySeconds: 30  # Wait 30s after container start before first check
+          periodSeconds: 10        # Check every 10 seconds
+          timeoutSeconds: 5        # Wait 5s for response before marking as failed
+        
+        # Liveness probe: Determines when to restart the container
+        # - Used to detect deadlocked or unresponsive applications
+        # - Failure causes Kubernetes to restart the container
+        livenessProbe:
+          httpGet:
+            path: /swagger  # Same endpoint as readiness for consistency
+            port: {{ .Values.api.service.targetPort }}
+          initialDelaySeconds: 60  # Wait 60s for application startup before first check
+          periodSeconds: 30        # Check every 30 seconds
+          timeoutSeconds: 10       # Wait 10s for response before marking as failed
+          failureThreshold: 3      # Allow 3 consecutive failures before restart
+          periodSeconds: 30
+          timeoutSeconds: 10
