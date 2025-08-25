@@ -108,4 +108,4 @@ spec:
       volumes:
       - name: mssql-data                     # Volume name used in volumeMounts
         persistentVolumeClaim:
-          claimName: {{ include "thedrive.fullname" . }}-mssql-pvc  # PVC reference
+          claimName: {{ include "thedrive.fullname" . }}-mssql-data-pvc  # PVC reference

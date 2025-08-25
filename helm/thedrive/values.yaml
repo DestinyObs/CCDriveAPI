@@ -1,6 +1,15 @@
-# TheDrive Helm Chart Values
+# TheDrive Helm Chart Values - GitOps Ready Configuration
 # This file contains all configurable values for the TheDrive application deployment
-# Users can customize these values during helm install/upgrade operations
+# 
+# 🔐 SECURITY MODEL:
+# - This file is SAFE for GitHub (no sensitive data)
+# - Actual secrets are in secrets.yaml (gitignored, local-only)
+# - Deploy with: helm install thedrive . -f values.yaml -f secrets.yaml
+#
+# ✅ VERIFIED WORKING SETUP:
+# - Command: helm install thedrive . -f values.yaml -f secrets.yaml -n thedrive --create-namespace
+# - Access: http://YOUR-SERVER-IP:30256/swagger (Swagger UI verified working)
+# - API: http://YOUR-SERVER-IP:30256/api (REST endpoints functional)
 #
 # Usage examples:
 #   helm install thedrive ./helm/thedrive -n thedrive --create-namespace
@@ -112,21 +121,17 @@ api:
 #
 # Current approach: Manual secret creation for simplicity and security
 
-# =============================================================================
-# EXTERNAL SECRET MANAGEMENT
-# =============================================================================
-# For GitOps security, all sensitive data is managed externally
-# 
-# Required Kubernetes Secret: {release-name}-secrets
-# Expected secret keys:
-#   - sa-password: SQL Server SA password (base64 encoded)
-#   - connection-string: Complete database connection string (base64 encoded)  
-#   - jwt-secret: JWT signing secret (base64 encoded)
-#   - sendgrid-api-key: SendGrid API key (base64 encoded)
-#   - s3-secret-key: AWS S3 secret access key (base64 encoded)
-#
-# Create manually: kubectl create secret generic thedrive-secrets --from-literal=...
-# Or use external secret management tools (Vault, AWS Secrets Manager, etc.)
+# Secrets structure (values provided externally)
+# These are just placeholders to show the expected structure
+secrets:
+  # JWT signing secret - PROVIDED EXTERNALLY
+  # jwtSecret: "managed-by-kubernetes-secret"
+  
+  # SendGrid API key - PROVIDED EXTERNALLY  
+  # sendgridApiKey: "managed-by-kubernetes-secret"
+  
+  # AWS S3 secret access key - PROVIDED EXTERNALLY
+  # s3SecretKey: "managed-by-kubernetes-secret"
 
 # Ingress configuration for advanced load balancing and SSL termination
 # Currently disabled - using NodePort for simplicity

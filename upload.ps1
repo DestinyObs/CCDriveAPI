@@ -6,7 +6,7 @@ Write-Host "TheDrive API Smart Sync Script" -ForegroundColor Green
 Write-Host "==========================================" -ForegroundColor Green
 
 # Server configuration
-$SERVER_IP = "100.27.25.7"
+$SERVER_IP = "18.206.91.117"
 $SERVER_USER = "ubuntu"
 $PEM_KEY = "C:\Users\Desti\Downloads\ubuntu.pem"
 $REMOTE_DIR = "/home/ubuntu/thedrive-upload"
@@ -77,6 +77,7 @@ if ($rsyncExists) {
         "$PROJECT_DIR\.env" `
         "$PROJECT_DIR\init-db.sql" `
         "$PROJECT_DIR\k8s" `
+        "$PROJECT_DIR\argocd" `
         "$PROJECT_DIR\helm" `
         "$SERVER_USER@$SERVER_IP`:$REMOTE_DIR/"
         

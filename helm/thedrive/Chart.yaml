@@ -8,9 +8,25 @@ apiVersion: v2
 # Chart identification
 name: thedrive                          # Chart name - must match directory name
 description: |                          # Multi-line description of the application
-  TheDrive File Upload API - A complete cloud storage solution
-  Features: User authentication, file upload/download, folder management,
-  file sharing, version control, and administrative capabilities.
+  TheDrive File Upload API - GitOps-Ready Cloud Storage Solution
+  
+  🚀 PRODUCTION FEATURES:
+  - User authentication with JWT tokens
+  - File upload/download with AWS S3 integration
+  - Folder management and file sharing
+  - Version control and administrative capabilities
+  - SQL Server 2022 Express with persistent storage
+  - High availability with 2 API replicas
+  
+  🔐 SECURITY MODEL:
+  - Secure secret separation (values.yaml + secrets.yaml)
+  - GitOps compatible (secrets never in version control)
+  - ArgoCD ready for automated deployments
+  
+  ✅ VERIFIED WORKING:
+  - Deployment: helm install thedrive . -f values.yaml -f secrets.yaml -n thedrive --create-namespace
+  - Swagger UI: http://YOUR-SERVER-IP:30256/swagger
+  - API Endpoints: http://YOUR-SERVER-IP:30256/api
   
   Built with ASP.NET Core 6, Entity Framework, SQL Server, and AWS S3.
 
