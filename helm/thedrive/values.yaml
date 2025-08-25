@@ -59,7 +59,7 @@ api:
   
   # Number of API pod replicas for high availability and load distribution
   # Increase for production workloads, decrease for resource-constrained environments
-  replicaCount: 2
+  replicaCount: 3
   
   # Resource allocation for API containers
   # Based on .NET Core application requirements and performance testing
